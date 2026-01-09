@@ -1,0 +1,586 @@
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    background-color: #111111;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* SIDEBAR STYLES */
+.sidebar {
+    width: 220px;
+    background-color: #0b0b0b;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center; 
+    gap: 12px;           
+    margin-bottom: 10px;
+}
+
+.profile-link {
+	text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic-default img{
+	width: 26px;           /* fixed size */
+    height: 26px;
+    padding: 3px;
+    border: 2px solid #ff8c00;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+}
+
+.profile-pic-default img:hover {
+    transform: scale(1.1);
+    border-color: #ffa500;
+}
+
+.manager-text {
+    color: #ff8c00;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.divider {
+    width: 100%;
+    border: 1px solid #ff8c00;
+    margin-bottom: 20px;
+}
+
+.nav-menu { 
+    flex-grow: 1; 
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+}
+
+.nav-item:hover { 
+    background-color: #222; 
+}
+
+.nav-item.active {
+    border: 1.5px solid #ff8c00;
+    background-color: #1a1a1a;
+    font-weight: bold;
+}
+
+.logout-section {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;   /* Reduced top/bottom padding */
+    margin-top:auto;   /* Reduced top/bottom padding */
+    margin-bottom: 40px;  /* Small margin to keep it away from the very edge */
+}
+
+.nav-icon-logout {
+    display: flex;
+    align-items: center;
+    color: #ff8c00;
+    font-weight: bold;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+a.nav-icon-logout {
+    display: flex;
+    align-items: center;
+}
+
+.nav-icon-logout img {
+    width: 23px;
+    height: 23px;
+    padding: 0;           /* Removed the heavy top/bottom padding */
+    margin-right: 12px;   /* Space between icon and text */
+}
+
+/* ============================= */
+/* === MAIN CONTENT STYLES) ==== */
+/* ============================= */
+
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+}
+
+.content-box {
+    background-color: #0b0b0b;
+    border-radius: 20px;
+    padding: 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.page-title {
+    color: white;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    margin-right: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.filter-btn.active { 
+    background-color: #ff8c00; 
+}
+
+.filter-btn:hover:not(.active) { 
+    background-color: #444; 
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+}
+
+.add-btn {
+    background-color: #00c853;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: "Poppins";
+    font-weight: bold;
+}
+
+.add-btn:hover { 
+    background-color: #00e676; 
+}
+
+.search-container {
+    background-color: white;
+    border-radius: 20px;
+    padding: 8px 12px;
+    display: inline-flex;
+    margin-left: 10px;
+}
+
+.search-container img {
+    width: 15px;
+    height: 15px;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    margin-left: 5px;
+    width: 100px;
+}
+
+input::placeholder {
+    color: #6c6c6c;
+    font-size: 14px;
+}
+
+/* TABLE STYLES */
+.table-wrapper {
+    background-color: #222;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.equipment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.equipment-table th {
+    background-color: #333;
+    color: #ccc;
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+}
+
+.empty-row {
+    background-color: white;
+    height: 150px;
+}
+
+/* ============================= */
+/* ==== EQP LIST (NOT FIX) ===== */
+/* ============================= */
+/* ============================= */
+/* ==== EQP LIST (FIXED) ======= */
+/* ============================= */
+
+/* 1. Ensure headers and data share the same alignment */
+.equipment-table th, 
+.equipment-table td {
+    text-align: center;      /* Forces everything to the horizontal center */
+    vertical-align: middle;  /* Forces everything to the vertical center */
+    padding: 15px 10px;      /* Standardized padding */
+}
+
+/* 2. Style the headers specifically */
+.equipment-table th {
+    color: #ccc;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #333; /* Matches your dark header theme */
+}
+
+/* 3. Row Background */
+.equipment-table tbody tr {
+    background-color: white;
+    border-bottom: 1px solid #eee;
+}
+
+/* 4. Table Image Styling */
+.table-img {
+    width: 50px;
+    height: auto;
+    display: inline-block;  /* Changed to inline-block for better text-align behavior */
+    margin: 0 auto;
+}
+
+/* 5. Type Colors */
+.type-service {
+    color: #ff8c00; 
+    font-weight: bold;
+}
+
+.type-support {
+    color: #0047ff; 
+    font-weight: bold;
+}
+
+/* 6. The Blue Action Button */
+.action-edit-btn {
+    width: 34px;
+    height: 34px;
+    background-color: #0d4df5; /* blue */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto;/* Centers the button within the cell */
+    display: flex;/* Flexbox is best for centering the icon inside the circle */
+}
+
+.action-edit-btn img {
+    width: 16px;
+    filter: invert(1);
+}
+
+/* ============================= */
+/* ======= MODAL (FIXED) ======= */
+/* ============================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none; /* Change to 'flex' via JS to show */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-family: "Poppins", sans-serif;
+}
+
+.modal {
+    background: #2a2a2a;
+    width: 820px;
+    padding: 25px 30px;
+    border-radius: 16px;
+    position: relative;
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TITLE */
+.modal-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* BODY GRID */
+.modal-body {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 35px;
+}
+
+/* FORM ELEMENTS */
+.modal-form label {
+    display: block;
+    margin-top: 14px;
+    font-size: 14px;
+    color: #ccc;
+}
+
+/* Targets only text, number, and select - NOT radio buttons */
+.modal-form input[type="text"],
+.modal-form input[type="number"],
+.modal-form select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: none;
+    margin-top: 6px;
+    background: #fff;
+    font-family: inherit;
+    box-sizing: border-box; /* Ensures padding doesn't break width */
+}
+
+/* RADIO BUTTONS FIX */
+#serviceOptions, #supportOptions {
+    margin-top: 10px;
+    display: flex;
+    gap: 20px; /* Space between radio options */
+}
+
+/* This targets the labels inside the radio containers */
+#serviceOptions label, 
+#supportOptions label {
+    display: flex;
+    align-items: center;
+    margin-top: 0; /* Reset top margin for inline look */
+    cursor: pointer;
+    font-weight: 400;
+}
+
+/* The actual radio circle */
+.modal-form input[type="radio"] {
+    width: auto; 
+    margin-right: 8px;
+    accent-color: #ff8c00; /* Makes the radio button match your theme color */
+}
+
+/* IMAGE UPLOAD */
+.image-upload {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-box {
+    width: 260px;
+    height: 200px;
+    background: white;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.2s;
+    overflow: hidden; /* Added: This keeps the image inside the rounded corners */
+}
+
+.image-box:hover {
+    opacity: 0.9;
+}
+
+#imagePreview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;     /* Force containment here too */
+} 
+
+.image-box span {
+    color: #333;
+    font-weight: 500;
+}
+
+/* FOOTER */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+.submit-btn {
+    background: #00c853;
+    color: white;
+    border: none;
+    padding: 14px 60px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+.submit-btn:hover {
+    background: #00e676;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: white;
+}
+
+/* ============================= */
+/* ===== UPDATE (NOT FINISH YET) ======= */
+/* ============================= */
+/* UPDATE MODAL SPECIFIC STYLES */
+.update-modal {
+    background: #1e1e1e; /* Darker background like the image */
+    width: 400px;
+    padding: 30px;
+    border-radius: 20px;
+    position: relative;
+    color: white;
+    text-align: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+}
+
+.update-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.update-subtitle {
+    font-size: 16px;
+    color: #efefef;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Image Container */
+/* The White Box (Rectangular Image Area) */
+.equipment-display-box {
+    background: white;
+    width: 220px; /* Reduced width to make it a smaller rectangle */
+    height: 120px; /* Adjusted height for better proportions */
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin: 0 auto 10px auto; /* 'auto' on left/right centers the box */
+}
+
+.equipment-display-box img {
+    max-height: 85%;
+    max-width: 85%;
+    object-fit: contain;
+}
+
+.equipment-name-label {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Quantity Input Styling */
+.quantity-section label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.update-input {
+    width: 100px;
+    padding: 10px;
+    border-radius: 20px; /* Rounded pill shape like image */
+    border: none;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+/* Update Button */
+.update-btn {
+    background: #0047ff; /* Blue color from image */
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 150px;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+
+.action-edit-btn i {
+    color: white !important;
+    font-size: 14px;           /* Adjust size of the pencil icon */
+}
+
+.update-btn:hover {
+    background: #0036c7;
+}
+
+/*success*/
+.success-icon {
+    width: 90px;
+    height: 90px;
+    background: #1db954;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.success-icon i {
+    font-size: 42px;
+    color: white;
+}

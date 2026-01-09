@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assigned Event List</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="farah1.css">
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="profile-section">
+          <a href="accEC.html" class="profile-link">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div></a>
+            <span class="manager-text">Coordinator</span>
+        </div>
+
+        <hr class="divider">
+
+       <nav class="nav-menu">
+            <a href="dashEC.html" class="nav-item">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href="viewAssigendEvent.html" class="nav-item active">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <a href="logout.html" class="nav-item logout">
+                <img src="icon/logout.png" class="nav-icon"> Log Out
+            </a>
+        </div>
+    </div>
+
+	<main class="main-content">
+	    <div class="content-box">
+	        <h2 class="page-title">List of assigned events</h2>
+
+		<div class="toolbar">
+		    <p class="page-desc" id="pageDesc">Here is the list of all assigned events.</p>
+		
+		    <div class="action-group">
+		        <div class="search-container">
+		            <span class="search-icon"><img src="icon/search.png" style="width:16px;height:16px;"></span>
+		            <input type="text" placeholder="Search" class="search-input" id="searchInput">
+		        </div>
+		    </div>
+		</div>
+
+
+        <div class="table-wrapper">
+            <table class="event-table">
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Date &amp; Time</th>
+                        <th>Venue</th>
+                        <th>Package</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>
+						    <a href="viewAssignedEvent.html?eventId=E001" class="event-id-link">
+						        <strong>E001</strong>
+						    </a>
+						</td>
+                        <td>
+                            27-06-2025<br>
+                            12.00 PM
+                        </td>
+                        <td>Venue A</td>
+                        <td>Package A</td>
+                        <td class="status completed">Completed</td>
+                    </tr>
+
+                    <tr>
+                        <td>
+						    <a href="viewAssignedEvent.html?eventId=E002" class="event-id-link">
+						        <strong>E002</strong>
+						    </a>
+						</td>
+                        <td>
+                            29-06-2025<br>
+                            2.00 PM
+                        </td>
+                        <td>Venue B</td>
+                        <td>Package B</td>
+                        <td class="status completed">Completed</td>
+                    </tr>
+
+                    <tr>
+                        <td>
+						    <a href="viewAssignedEvent.html?eventId=E003" class="event-id-link">
+						        <strong>E003</strong>
+						    </a>
+						</td>
+                        <td>
+                            30-06-2025<br>
+                            10.00 AM
+                        </td>
+                        <td>Venue C</td>
+                        <td>Package C</td>
+                        <td class="status in-progress">In-progress</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+
+   <script>
+	document.getElementById("searchInput").addEventListener("keyup", function () {
+	    const searchValue = this.value.toLowerCase();
+	    const tableRows = document.querySelectorAll(".event-table tbody tr");
+	    const pageDesc = document.getElementById("pageDesc");
+	
+	    let matchFound = false;
+	
+	    tableRows.forEach(row => {
+	        const rowText = row.textContent.toLowerCase();
+	
+	        if (rowText.includes(searchValue)) {
+	            row.style.display = "";
+	            matchFound = true;
+	        } else {
+	            row.style.display = "none";
+	        }
+	    });
+	
+	    // Update description text
+	    if (!matchFound) {
+	        pageDesc.textContent = "No events found.";
+	    } else {
+	        pageDesc.textContent = "Here is the list of all events.";
+	    }
+	});
+	</script>
+
+</body>
+</html>

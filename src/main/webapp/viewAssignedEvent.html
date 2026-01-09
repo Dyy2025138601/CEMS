@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <link rel="stylesheet" href="farah1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+	@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+	</style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div>
+            <span class="manager-text">Event Coordinator</span>
+        </div>
+        
+        <hr class="divider">
+
+        <nav class="nav-menu">
+            <a href="dashEC.html" class="nav-item">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href="assignedEventList.html" class="nav-item active">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <a href="logout.html" class="nav-icon-logout">
+               <img src="icon/logout.png">Log Out
+            </a>
+        </div>
+    </div>
+	
+	<!-- main content page -->
+    <main class="main-content">
+        <div class="content-box">
+            <h1 class="page-title">Event Details</h1>
+            <p class="page-desc">Here is the detail of the event.</p>
+            
+            <!-- EVENT INFO CARD -->
+	        <!-- Event Info Form Card -->
+	        <div class="event-details-card">
+			    <div class="event-details-row">
+			        <div class="event-field-inline">
+			            <label for="eventId">Event ID:</label>
+			            <input type="text" id="eventId" value="E001" class="field-input highlight-readonly" readonly>
+			        </div>
+			        <div class="event-field-inline">
+			            <label for="eventTime">Event Time:</label>
+			            <input type="text" id="eventTime" value="12.00 PM" class="field-input" readonly>
+			        </div>
+			        <div class="event-field-inline">
+			            <label for="venue">Venue:</label>
+			            <input type="text" id="venue" value="Venue B" class="field-input" readonly>
+			        </div>
+			    </div>
+			
+			    <div class="event-details-row">
+			        <div class="event-field-inline">
+			            <label for="eventName">Event Name:</label>
+			            <input type="text" id="eventName" value="Wedding" class="field-input" readonly>
+			        </div>
+			        <div class="event-field-inline">
+			            <label for="eventDate">Event Date:</label>
+			            <input type="date" id="eventDate" value="2025-06-27" class="field-input" readonly>
+			        </div>
+			        <div class="event-field-inline">
+			            <label for="pax">No of Pax:</label>
+			            <input type="number" id="pax" value="100" class="field-input" readonly>
+			        </div>
+			    </div>
+			</div>
+            
+            <!-- PACKAGE SECTION -->
+	        <div class="package-section">
+	            <div class="package-header">
+				    <h3>
+				        Package Selected: <span class="orange-text">Package A</span>
+				    </h3>
+				    <span class="coordinator-badge">
+				        <i class="fas fa-user-check"></i>
+				       Assign Coordinator: Aisyah Ahmad
+				    </span>
+				</div>
+            <!-- add & search -->
+           <!-- <div class="toolbar">
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="setTab(this)">All</button>
+                    <button class="filter-btn" onclick="setTab(this)">1: Service</button>
+                    <button class="filter-btn" onclick="setTab(this)">2: Support</button>
+                </div>
+                
+                <div class="action-group">
+                    <button class="add-btn"><span>+</span> Add Equipment</button>
+                    <div class="search-container">
+                        <span class="search-icon" ><img src="icon/search.png"></span>
+                        <input type="text" placeholder="Search" class="search-input">
+                    </div>
+                </div>
+            </div> -->
+			
+			<!-- table -->
+           <div class="table-group">
+			<h1 class="table-title">Equipment Included</h1>
+				<button class="return-btn" onclick="document.location='formReturn.html'">Return Equipment</button>
+	        </div>
+	            
+            <div class="table-wrapper">
+                <table class="equipment-table">
+                	<colgroup>
+				    <col style="width: 18%">
+				    <col style="width: 22%">
+				    <col style="width: 18%">
+				    <col style="width: 18%">
+				    <col style="width: 30%">
+				 	</colgroup>
+                    <thead>
+                        <tr>
+                            <th>Eqp ID</th>
+                            <th>Name</th>
+                            <th>Serving Set</th>
+                            <th>Function</th>
+                            <th>Quantity Required</th>
+                        </tr>
+                    </thead>
+                    <tbody class="body-row">
+                        <tr>
+                        	<td>E001</td>
+                            <td>Large Pot</td>
+                            <td class="muted">N/A</td>
+                            <td>Storage</td>
+                            <td>11</td>
+                        </tr>
+                        <tr>
+                        	<td>E002</td>
+                            <td>Buffet</td>
+                            <td>Guest</td>
+                            <td class="muted">N/A</td>
+                            <td>12</td>
+                        </tr>
+                        <tr>
+                        	<td>E003</td>
+                            <td>Insert</td>
+                            <td>Guest</td>
+                            <td class="muted">N/A</td>
+                            <td>24</td>
+                        </tr>
+                        <tr>
+                        	<td>E004</td>
+                            <td>Plate</td>
+                            <td>Guest</td>
+                            <td class="muted">N/A</td>
+                            <td>5000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+            </div>
+    </main>          
+</body>
+</html>

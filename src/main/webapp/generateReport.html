@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+    <link rel="stylesheet" href="farah1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+   
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div>
+            <span class="manager-text">Manager</span>
+        </div>
+        
+        <hr class="divider">
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href="equipment.html" class="nav-item">
+                <img src="icon/eqp.png" class="nav-icon"> Equipment
+            </a>
+            <a href="#" class="nav-item">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+            <a href="viewPackageList.html" class="nav-item">
+                <img src="icon/package.png" class="nav-icon"> Package
+            </a>
+            <a href="EClist.html" class="nav-item">
+                <img src="icon/coordinator.png" class="nav-icon"> Coordinator
+            </a>
+            <a href="viewReportList.html" class="nav-item active">
+                <img src="icon/report.png" class="nav-icon"> Report
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <a href="logout.html" class="nav-icon-logout">
+               <img src="icon/logout.png">Log Out
+            </a>
+        </div>
+    </div>
+	
+	<!-- main content page -->
+    <main class="main-content">
+        <div class="content-box">
+            <h1 class="page-title">Generate Report</h1>
+            <p class="page-desc">Fill in form to generate report.</p>
+          
+			<div class="form-box">
+		        <div class="form-section">
+		          <h3 class="type-title">Select Report Type</h3>
+		          <label><input type="radio" name="report"> Event Report</label>
+		          <label><input type="radio" name="report"> Equipment Report</label>
+		        </div>
+
+		        <div class="form-section">
+			        <h3 class="date-title">Select Date Range</h3>
+			        <p>Please select the date range:</p> 
+			        <div class="date-picker-wrapper">
+				        <div class="date-range">
+						    <input type="text" id="fromDate" placeholder="From" readonly>
+						    <span>–</span>
+						    <input type="text" id="toDate" placeholder="Until" readonly>
+						</div>
+						
+						<div id="calendar" class="calendar hidden">
+						    <div class="calendar-header">
+						        <button id="prevMonth">‹</button>
+						        <span id="monthYear"></span>
+						        <button id="nextMonth">›</button>
+						    </div>
+						    
+						    <div class="calendar-days">
+						        <div>Sun</div><div>Mon</div><div>Tue</div>
+						        <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+						    </div>
+						    <div id="calendarDates" class="calendar-dates"></div>
+						    <!-- Footer Buttons -->
+						    <div class="calendar-footer">
+						        <button id="resetBtn" class="reset">Reset</button>
+						        <button id="applyBtn" class="apply">Apply</button>
+						    </div>
+						</div>
+		        	</div>
+		        	</div>
+				
+        		<button class="generate-btn" onclick="showModal()">Generate Report</button>
+      		</div>
+        </div>
+        
+    </main>
+    
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+	    <div class="modal-box">
+	        <button class="modal-close" onclick="closeModal()">×</button>
+	
+	        <h2>Report Successfully<br>Generated</h2>
+	
+	        <div class="success-icon">
+	            <i class="fas fa-check"></i>
+	        </div>
+	    </div>
+	</div>
+    
+    <script>
+	    function showModal() {
+	        document.getElementById("successModal").style.display = "flex";
+	    }
+	
+	    function closeModal() {
+	        // hide modal
+	        document.getElementById("successModal").style.display = "none";
+	
+	        // redirect to Event List page
+	        window.location.href = "viewReportList.html";
+	    }
+	
+	    // Close modal when clicking outside
+	    document.getElementById("successModal").addEventListener("click", function (e) {
+	        if (e.target === this) {
+	            closeModal();
+	        }
+	    });
+	</script>
+	
+	<script>
+		const calendar = document.getElementById("calendar");
+		const calendarDates = document.getElementById("calendarDates");
+		const monthYear = document.getElementById("monthYear");
+		
+		const fromInput = document.getElementById("fromDate");
+		const toInput = document.getElementById("toDate");
+		
+		const resetBtn = document.getElementById("resetBtn");
+		const applyBtn = document.getElementById("applyBtn");
+		
+		let currentDate = new Date();
+		let tempStart = null;
+		let tempEnd = null;
+		let appliedStart = null;
+		let appliedEnd = null;
+		
+		fromInput.onclick = toInput.onclick = () => {
+		    calendar.classList.remove("hidden");
+		    renderCalendar();
+		};
+		
+		document.getElementById("prevMonth").onclick = () => {
+		    currentDate.setMonth(currentDate.getMonth());
+		    renderCalendar();
+		};
+		
+		document.getElementById("nextMonth").onclick = () => {
+		    currentDate.setMonth(currentDate.getMonth());
+		    renderCalendar();
+		};
+		
+		resetBtn.onclick = () => {
+		    tempStart = tempEnd = appliedStart = appliedEnd = null;
+		    fromInput.value = "";
+		    toInput.value = "";
+		    renderCalendar();
+		};
+		
+		applyBtn.onclick = () => {
+		    appliedStart = tempStart;
+		    appliedEnd = tempEnd;
+		
+		    if (appliedStart) fromInput.value = formatDate(appliedStart);
+		    if (appliedEnd) toInput.value = formatDate(appliedEnd);
+		
+		    calendar.classList.add("hidden");
+		};
+		
+		function renderCalendar() {
+		    calendarDates.innerHTML = "";
+		
+		    const year = currentDate.getFullYear();
+		    const month = currentDate.getMonth();
+		
+		    monthYear.textContent = currentDate.toLocaleString("default", {
+		        month: "long",
+		        year: "numeric"
+		    });
+		
+		    const firstDay = new Date(year, month, 1).getDay();
+		    const daysInMonth = new Date(year, month + 1, 0).getDate();
+		
+		    for (let i = 0; i < firstDay; i++) {
+		        calendarDates.appendChild(document.createElement("div"));
+		    }
+		
+		    for (let day = 1; day <= daysInMonth; day++) {
+		        const dateDiv = document.createElement("div");
+		        const dateObj = new Date(year, month, day);
+		        dateDiv.textContent = day;
+		
+		        if (tempStart && sameDate(dateObj, tempStart))
+		            dateDiv.classList.add("selected");
+		
+		        if (tempEnd && sameDate(dateObj, tempEnd))
+		            dateDiv.classList.add("selected");
+		
+		        if (tempStart && tempEnd && dateObj > tempStart && dateObj < tempEnd)
+		            dateDiv.classList.add("in-range");
+		
+		        dateDiv.onclick = () => selectDate(dateObj);
+		        calendarDates.appendChild(dateDiv);
+		    }
+		}
+		
+		function selectDate(date) {
+		    if (!tempStart || (tempStart && tempEnd)) {
+		        tempStart = date;
+		        tempEnd = null;
+		    } else if (date >= tempStart) {
+		        tempEnd = date;
+		    }
+		    renderCalendar();
+		}
+		
+		function sameDate(a, b) {
+		    return a.toDateString() === b.toDateString();
+		}
+		
+		function formatDate(date) {
+		    const year = date.getFullYear();
+		    const month = String(date.getMonth() + 1).padStart(2, "0");
+		    const day = String(date.getDate()).padStart(2, "0");
+		    return `${year}-${month}-${day}`;
+		}
+		
+		</script>
+</body>
+</html>

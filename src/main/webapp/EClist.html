@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <link rel="stylesheet" href="ecList.css">
+    <style>
+	@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+	</style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+          <a href="account.html" class="profile-link">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div></a>
+            <span class="manager-text">Manager</span>
+        </div>
+        <hr class="divider">
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href=equipment.html class="nav-item">
+                <img src="icon/eqp.png" class="nav-icon"> Equipment
+            </a>
+            <a href="ViewEventList.html" class="nav-item">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+            <a href="viewPackageList.html" class="nav-item">
+                <img src="icon/package.png" class="nav-icon"> Package
+            </a>
+            <a href="EClist.html" class="nav-item active">
+                <img src="icon/coordinator.png" class="nav-icon"> Coordinator
+            </a>
+            <a href="viewReportList.html" class="nav-item">
+                <img src="icon/report.png" class="nav-icon"> Report
+            </a>
+        </nav>
+        <div class="logout-section">
+            <a href="logout.html" class="nav-icon-logout">
+               <img src="icon/logout.png">Log Out
+            </a>
+        </div>
+    </div>
+    <main class="main-content">
+    <div class="content-box">
+        <div class="table-container">
+            <h2>Coordinator List</h2>
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Assignments</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>EC001</strong></td>
+                            <td>Ahmad Haikal</td>
+                            <td><span class="status available">Available</span></td>
+                            <td>0</td>
+                            <td>011-2345678</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EC002</strong></td>
+                            <td>Sara Lim</td>
+                            <td><span class="status available">Available</span></td>
+                            <td>1</td>
+                            <td>012-3456789</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EC003</strong></td>
+                            <td>Luqman Hakim</td>
+                            <td><span class="status unavailable">Not Available</span></td>
+                            <td>3</td>
+                            <td>019-2874572</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </main>
+    </body>
+    </html>

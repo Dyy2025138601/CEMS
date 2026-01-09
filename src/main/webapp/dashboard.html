@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+	@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+	</style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+          <a href="account.html" class="profile-link">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div></a>
+            <span class="manager-text">Manager</span>
+        </div>
+        
+        <hr class="divider">
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item active">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href="equipment.html" class="nav-item">
+                <img src="icon/eqp.png" class="nav-icon"> Equipment
+            </a>
+            <a href="ViewEventList.html" class="nav-item">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+            <a href="viewPackageList.html" class="nav-item">
+                <img src="icon/package.png" class="nav-icon"> Package
+            </a>
+            <a href="EClist.html" class="nav-item">
+                <img src="icon/coordinator.png" class="nav-icon"> Coordinator
+            </a>
+            <a href="viewReportList.html" class="nav-item">
+                <img src="icon/report.png" class="nav-icon"> Report
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <a href="logout.html" class="nav-icon-logout">
+               <img src="icon/logout.png">Log Out
+            </a>
+        </div>
+    </div>
+   <div class="dashboard-wrapper">
+    <main class="main-content">
+        <h1 class="welcome-text">Welcome, Manager</h1>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p class="stat-label">PENDING RETURNS</p>
+                    <p class="stat-value">3</p>
+                    <p class="stat-sub">This week</p>
+                </div>
+                <div class="stat-icon green">
+                    <img src="icon/return.png" alt="icon">
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p class="stat-label">TOTAL EVENTS</p>
+                    <p class="stat-value">22</p>
+                    <p class="stat-sub">This week</p>
+                </div>
+                <div class="stat-icon yellow">
+                    <img src="icon/calendar.png" alt="icon">
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <p class="stat-label">TOTAL EQUIPMENTS</p>
+                    <p class="stat-value">40</p>
+                    <p class="stat-sub"></p>
+                </div>
+                <div class="stat-icon purple">
+                    <img src="icon/kitchen.png" alt="icon">
+                </div>
+            </div>
+        </div>
+
+        <section class="events-section">
+            <h2 class="section-title">Upcoming Events</h2>
+            <div class="table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Event ID</th>
+                            <th>Date & Time</th>
+                            <th>Venue</th>
+                            <th>Package</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>E003</td>
+                            <td>30-06-2025<br>10:00 AM</td>
+                            <td>Venue A</td>
+                            <td>Package A</td>
+                            <td class="status-active">In-progress</td>
+                        </tr>
+                        <tr>
+                            <td>E004</td>
+                            <td>31-06-2025<br>2:00 PM</td>
+                            <td>Venue B</td>
+                            <td>Package B</td>
+                            <td class="status-active">In-progress</td>
+                        </tr>
+                        <tr>
+                            <td>E005</td>
+                            <td>02-07-2025<br>10:00 AM</td>
+                            <td>Venue C</td>
+                            <td>Package C</td>
+                            <td class="status-active">In-progress</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

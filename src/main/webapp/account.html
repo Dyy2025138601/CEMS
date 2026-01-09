@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account</title>
+    <link rel="stylesheet" href="account.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+	@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+	</style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="profile-section">
+          <a href="account.html" class="profile-link">
+            <div class="profile-pic-default">
+               <img src="icon/user.png" alt="profile_image">
+            </div></a>
+            <span class="manager-text">Manager</span>
+        </div>
+        
+        <hr class="divider">
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <img src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> Dashboard
+            </a>
+            <a href="equipment.html" class="nav-item">
+                <img src="icon/eqp.png" class="nav-icon"> Equipment
+            </a>
+            <a href="ViewEventList.html" class="nav-item">
+                <img src="icon/event.png" class="nav-icon"> Event
+            </a>
+            <a href="viewPackageList.html" class="nav-item">
+                <img src="icon/package.png" class="nav-icon"> Package
+            </a>
+            <a href="EClist.html" class="nav-item">
+                <img src="icon/coordinator.png" class="nav-icon"> Coordinator
+            </a>
+            <a href="viewReportList.html" class="nav-item">
+                <img src="icon/report.png" class="nav-icon"> Report
+            </a>
+        </nav>
+
+        <div class="logout-section">
+            <a href="logout.html" class="nav-icon-logout">
+               <img src="icon/logout.png">Log Out
+            </a>
+        </div>
+    </div>
+	
+	<main class="main-content">
+    <div class="profile-container">
+        <div class="profile-card">
+	    <h2 class="page-title">My Profile</h2>
+	
+	    <div class="profile-content">
+	        <div class="profile-left">
+	            <div class="large-profile-pic">
+	                <img src="icon/user.png" alt="profile_image">
+	            </div>
+	            <button class="update-btn" onclick="openModal()">Update</button>
+	        </div>
+	
+	        <div class="profile-right">
+	            <div class="input-group">
+	                <input type="text" value="Ahmad Bin Abu" readonly>
+	            </div>
+	            <div class="input-group">
+	                <input type="email" value="mad@gmail.com" readonly>
+	            </div>
+	            <div class="input-group">
+	                <input type="text" value="0123456789" readonly>
+	            </div>
+	            <div class="input-group">
+	                <input type="password" value="********" readonly>
+	            </div>
+	        </div>
+	    </div>
+		</div>
+
+    </div>
+</main>
+
+<div class="modal-overlay" id="accountModal">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal()">✕</button>
+        <h2 class="modal-title">Update Profile Details</h2>
+ 		 	
+	        <form class="modal-form" onsubmit="event.preventDefault(); showSuccessModal();">
+	            <div class="modal-body">
+	                <div>
+	                    <label>New Password</label>
+	                    <input type="password" placeholder="Enter new password">
+	                    
+	                    <label>Phone Number</label>
+	                    <input type="tel" value="0123456789">
+	                </div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="submit" class="submit-btn">Save</button>
+	            </div>
+	        </form>
+	    </div>
+	</div>
+	<div class="modal-overlay" id="successModal" style="display: none;">
+	    <div class="success-modal" style="text-align: center;">
+	        <button class="close-btn" onclick="closeSuccessModal()">✕</button>
+	        <h2 id="successTitle" style="margin-bottom: 20px; color: white;">Account Successfully<br>Updated</h2>
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+	        </div>
+	    </div>
+	</div>
+<script>
+function showSuccessModal() {
+    // Hide the update form modal first
+    closeModal(); 
+    // Show the success modal
+    document.getElementById("successModal").style.display = "flex";
+}
+
+function closeSuccessModal() {
+    document.getElementById("successModal").style.display = "none";
+    // Redirect to Event List page
+    window.location.href = "account.html";
+}
+
+// Close success modal when clicking outside
+document.getElementById("successModal").addEventListener("click", function (e) {
+    if (e.target === this) {
+        closeSuccessModal();
+    }
+});
+    function setTab(btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function openModal() {
+        document.getElementById('accountModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('accountModal').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>

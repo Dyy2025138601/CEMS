@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+<div class="login-page">
+    <div class="login-card">
+
+        <!-- LEFT PANEL -->
+        <div class="login-left">
+            <div class="logo-wrapper">
+                <div class="logo-circle">
+                    <img src="icon/logo.png" alt="Logo">
+                </div>
+            </div>
+
+            <h1 class="system-title">
+                Catering Equipment<br>
+                Management System
+            </h1>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="login-right">
+            <h2 class="login-title">Log In</h2>
+
+            <div class="role-group">
+                <label class="role-option">
+            <input type="radio" name="role" value="manager" id="roleManager">
+	            <span>Manager</span>
+	        </label>
+	        <label class="role-option">
+	            <input type="radio" name="role" value="coordinator" id="roleCoordinator">
+	            <span>Coordinator</span>
+	        </label>
+            </div>
+
+            <input type="email" placeholder="Email" class="login-input">
+            <input type="password" placeholder="Password" class="login-input">
+
+            <!-- <button class="login-btn">Log In</button> -->
+            
+            
+           <button class="login-btn" onclick="handleLogin()">Log In</button>
+
+            <p class="register-text">
+                Don’t have an account?
+                <a href="register.html">Register Now</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function handleLogin() {
+    // Get the radio buttons
+    const isManager = document.getElementById('roleManager').checked;
+    const isCoordinator = document.getElementById('roleCoordinator').checked;
+
+    if (isManager) {
+        window.location.href = "dashboard.html";
+    } else if (isCoordinator) {
+        window.location.href = "dashEC.html";
+    } else {
+        alert("Please select a role before logging in.");
+    }
+}
+</script>
+
+</body>
+</html>
