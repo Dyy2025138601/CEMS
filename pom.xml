@@ -15,16 +15,22 @@
 
     <name>CEMS JSP App</name>
 
+    <!-- ===================== -->
+    <!-- PROPERTIES -->
+    <!-- ===================== -->
     <properties>
-        <!-- Java 17 is REQUIRED for Heroku + webapp-runner -->
+        <!-- Heroku compatible -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!-- ===================== -->
+    <!-- DEPENDENCIES -->
+    <!-- ===================== -->
     <dependencies>
 
-        <!-- Servlet API (provided by Tomcat) -->
+        <!-- Servlet API -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -32,35 +38,39 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSP compiler -->
+        <!-- JSP Engine -->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
             <version>10.1.18</version>
         </dependency>
 
-        <!-- JSTL -->
+        <!-- JSTL API -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>3.0.0</version>
         </dependency>
 
+        <!-- JSTL Implementation -->
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
             <version>3.0.1</version>
         </dependency>
 
-        <!-- Webapp Runner for Heroku -->
+        <!-- Webapp Runner (Heroku) -->
         <dependency>
             <groupId>com.github.jsimone</groupId>
             <artifactId>webapp-runner</artifactId>
-            <version>9.0.86.1</version>
+            <version>9.0.48.0</version>
         </dependency>
 
     </dependencies>
 
+    <!-- ===================== -->
+    <!-- BUILD -->
+    <!-- ===================== -->
     <build>
         <finalName>cems</finalName>
     </build>
