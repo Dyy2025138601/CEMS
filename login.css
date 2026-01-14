@@ -1,0 +1,213 @@
+@charset "UTF-8";
+
+/* Import Poppins for that clean modern look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    background-color: #000000; /* Pure black background like the image */
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 850px;
+    height: 480px;
+    background: #121212; /* Dark grey/black for the right panel */
+    border-radius: 50px; /* Highly rounded corners as seen in image */
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(243, 111, 33, 0.4), 
+                0 0 40px rgba(243, 111, 33, 0.2), 
+                0 0 80px rgba(243, 111, 33, 0.1);
+}
+
+/* LEFT PANEL - The Orange Gradient Side */
+.login-left {
+    flex: 1;
+    background:linear-gradient(135deg, 
+                #f36f21 0%,    /* Start: Brighter button orange */
+                #f36f21 50%,   /* Mid: Transitioning to Dark Orange */
+                #ffa473 100%   /* End: Luminous Amber/Yellow for the 'bright' look */
+    );
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    text-align: center;
+    border-top: 0.5px solid #000000;
+    border-left: 0.5px solid #000000;
+    border-bottom: 0.5px solid #000000;
+    box-sizing: border-box;
+    border-radius: 50px; /* Matches the card rounding */
+}
+
+.logo-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background:  #e9e5d9; /* Creamy white background for logo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+    z-index: 2;
+    overflow: hidden;         /* Clips the image into a circle */
+    border: 1px solid #e9e5d9;
+}
+
+.logo-circle img {
+    width: 100%;             /* Reduced slightly so it doesn't touch the very edge */
+    height: 100%;    
+    display: block;
+    object-fit: cover;
+}
+
+.system-title {
+    font-size: 28px;
+    color: #ffffff;
+    line-height: 1.2;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 2px 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* RIGHT PANEL - The Form Side */
+.login-right {
+    flex: 1;
+    background-color: #121212; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.login-title {
+    font-size: 20px;
+    color: #f36f21; /* Orange title */
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.role-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.role-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+/* Styling the radio buttons to be orange */
+.role-option input[type="radio"] {
+    accent-color: #f36f21;
+}
+
+/* Pill-shaped inputs */
+.login-input {
+    width: 75%;
+    padding: 10px 18px;
+    border-radius: 12px; 
+    border: none;
+    margin-bottom: 12px;
+    font-size: 13px;
+    background: #ffffff;
+    outline: none;
+}
+
+/* Orange Login Button */
+.login-btn {
+    width: 100px;
+    padding: 8px;
+    border-radius: 12px;
+    border: none;
+    background: #f36f21; /* Match the orange in the image */
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.login-btn:hover { 
+    background-color:rgb(215, 75, 0);
+}
+
+.register-text {
+    font-size: 12px;
+    color: #bbbbbb;
+}
+
+.register-text a {
+    color: #f36f21; /* Match orange theme */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-text a:hover {
+    text-decoration: underline;
+    text-decoration-color: #ff8c00;
+    text-decoration-thickness: 2px;  /* thicker underline */
+    text-underline-offset: 3px;
+}
+
+/* Error Message Styling */
+.error-container {
+    width: 80%;
+    background-color: rgba(255, 77, 77, 0.1); /* Subtle red transparent bg */
+    border-left: 4px solid #ff4d4d; /* Bright red accent line */
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: shake 0.4s ease-in-out; /* Attention grabber */
+}
+
+.error-text {
+    color: #ff4d4d;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.error-icon {
+    width: 14px;
+    height: 14px;
+}
+
+/* Shake animation for when the error appears */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

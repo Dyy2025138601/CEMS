@@ -1,0 +1,24 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout Modal</title>
+    <link rel="stylesheet" href="logout.css">
+</head>
+<body>
+
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-text">Are sure you want to log out ?</h2>
+            
+            <div class="modal-buttons">
+                <a href="window.history.back();"><button class="btn btn-cancel">Cancel</button></a>
+                <a href="staffServlet?action=logout"><button class="btn btn-logout">Log Out</button></a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
