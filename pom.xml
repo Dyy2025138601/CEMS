@@ -14,19 +14,12 @@
 
     <name>CEMS JSP App</name>
 
-    <!-- ===================== -->
-    <!-- PROPERTIES -->
-    <!-- ===================== -->
     <properties>
-        <!-- Heroku stable -->
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- ===================== -->
-    <!-- DEPENDENCIES -->
-    <!-- ===================== -->
     <dependencies>
 
         <!-- Servlet API -->
@@ -37,41 +30,62 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- JSP Engine -->
+        <!-- JSP -->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
             <version>10.1.18</version>
         </dependency>
 
-        <!-- JSTL API -->
+        <!-- JSTL -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
             <version>3.0.0</version>
         </dependency>
 
-        <!-- JSTL Implementation -->
         <dependency>
             <groupId>org.glassfish.web</groupId>
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
             <version>3.0.1</version>
         </dependency>
 
-        <!-- Webapp Runner (Heroku) -->
-        <dependency>
-            <groupId>com.github.jsimone</groupId>
-            <artifactId>webapp-runner</artifactId>
-            <version>9.0.30.0</version>
-        </dependency>
-
     </dependencies>
 
-    <!-- ===================== -->
-    <!-- BUILD -->
-    <!-- ===================== -->
     <build>
         <finalName>cems</finalName>
+
+        <!-- DOWNLOAD webapp-runner.jar -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>download-webapp-runner</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.heroku</groupId>
+                                    <artifactId>webapp-runner</artifactId>
+                                    <version>9.0.87.0</version>
+                                    <destFileName>webapp-runner.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
     </build>
 
 </project>
