@@ -10,7 +10,6 @@
     <groupId>com.cems</groupId>
     <artifactId>cems</artifactId>
     <version>1.0.0</version>
-
     <packaging>war</packaging>
 
     <name>CEMS JSP App</name>
@@ -19,7 +18,7 @@
     <!-- PROPERTIES -->
     <!-- ===================== -->
     <properties>
-        <!-- Heroku compatible -->
+        <!-- Heroku stable -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,7 +62,7 @@
         <dependency>
             <groupId>com.github.jsimone</groupId>
             <artifactId>webapp-runner</artifactId>
-            <version>9.0.48.0</version>
+            <version>9.0.30.0</version>
         </dependency>
 
     </dependencies>
