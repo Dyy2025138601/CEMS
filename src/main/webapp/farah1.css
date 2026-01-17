@@ -270,127 +270,6 @@ body {
 }
 
 
-/*
-/* SIDEBAR STYLES 
-.sidebar {
-    width: 220px;
-    background-color: #0b0b0b;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-.profile-section {
-    display: flex;
-    align-items: center; 
-    gap: 12px;           
-    margin-bottom: 10px;
-}
-
-.profile-link {
-	text-decoration: none;
-    display: flex;
-    align-items: center;
-}
-
-.profile-pic-default img{
-	width: 26px;           /* fixed size 
-    height: 26px;
-    padding: 3px;
-    border: 2px solid #ff8c00;
-    border-radius: 50%;
-    object-fit: cover;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    display: flex;
-}
-
-.profile-pic-default img:hover {
-    transform: scale(1.1);
-    border-color: #ffa500;
-}
-
-.manager-text {
-    color: #ff8c00;
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.divider {
-	width: 100%;
-    border: 1px solid #ff8c00;
-    margin-bottom: 20px;
-}
-
-.nav-menu { 
-	flex-grow: 1; }
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: white;
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: 0.3s;
-}
-
-.nav-icon {
-    width: 20px; /* This prevents the huge icons 
-    height: 20px;
-    margin-right: 12px;
-}
-
-.nav-item:hover { background-color: #222; }
-
-.nav-item.active {
-    border: 1.5px solid #ff8c00;
-    background-color: #1a1a1a;
-    font-weight: bold;
-}
-
-.logout-section{
-	display: flex;
-    align-items: center;
-    padding: 10px 20px;   /* Reduced top/bottom padding 
-    margin-top:auto;   /* Reduced top/bottom padding 
-    margin-bottom: 40px;
-}
-
-.nav-icon-logout {
-    display: flex;
-    align-items: center;
-    color: #ff8c00;
-    font-weight: bold;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-a.nav-icon-logout {
-    display: flex;
-    align-items: center;
-}
-
-.nav-icon-logout img {
-    width: 23px;
-    height: 23px;
-    padding: 0;           /* Removed the heavy top/bottom padding 
-    margin-right: 12px;   /* Space between icon and text 
-}*/
-
-
-/* MAIN CONTENT STYLES 
-.main-content {
-    flex: 1;
-    padding: 40px;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-bottom: 60px;
-}*/
 
 .main {
     grid-area: main;
@@ -435,13 +314,14 @@ a.nav-icon-logout {
     background: #0047ff; /* Blue color from image */
     color: white;
     border: none;
-    padding: 12px 40px;
+    padding: 8px 15px;
     border-radius: 25px;
     font-weight: bold;
     cursor: pointer;
-    width: 150px;
+    width: auto;
     font-size: 16px;
     transition: background 0.2s;
+    text-decoration: none;
 }
 
 .update-btn:hover {
@@ -476,6 +356,7 @@ a.nav-icon-logout {
 .action-group {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .search-container {
@@ -484,6 +365,7 @@ a.nav-icon-logout {
     padding: 8px 12px;
     display: inline-flex;
     margin-left: 10px;
+    width: 250px;
 }
 
 .add-btn, .generate-btn {
@@ -500,7 +382,21 @@ a.nav-icon-logout {
 	width: auto;
 }
 
-.add-btn, .generate-btn:hover { 
+.submit-btn {
+	background-color:  #00a629;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: "Poppins";
+    font-weight: bold;
+	text-decoration: none;
+	font-size: 16px;
+	width: 160px;
+}
+
+.add-btn:hover, .generate-btn:hover, submit-btn:hover { 
 	background-color: #008A22;
 }
 
@@ -530,23 +426,17 @@ a.nav-icon-logout {
     align-items: center;
 }
 
-.action-edit-btn {
-    width: 30px; /* Smaller, more compact circle */
-    height: 30px;
-    background-color: #0d4df5;
+.back-link {
+    background: none;
     border: none;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    color:white;
     cursor: pointer;
-    transition: transform 0.2s;
+    font-size: 1.0rem;
+    padding: 0;
+    transition: color 0.2s;
 }
 
-.action-edit-btn i {
-    color: white !important;
-    font-size: 14px; /* Smaller icon */
-}
+.back-link:hover { color: #ff8c00; }
 
 .action-edit-btn:hover {
     background-color: #0036c7;
@@ -614,6 +504,7 @@ input[type="radio"]{
     border-radius: 50%;
     display: inline-block;
     margin-right: 6px;
+    vertical-align: middle;
 }
 .dot.service { background-color: #bf0005; }
 .dot.support { background-color: #e6e600; }
@@ -742,10 +633,6 @@ input[type="radio"]{
     box-shadow: var(--shadow);
 }
 
-.equipment-table thead, .package-table thead, .report-table thead, .event-table thead {
-    background-color:  #e5e5e5;
-}
-
 /*EQUIPMENT TABLE*/
 .equipment-table thead th {
     color: black;
@@ -778,6 +665,61 @@ input[type="radio"]{
 } 
 
 equipment-table th.newQty, td.newQty {
+  text-align: right;
+}
+
+/*TABLE*/
+.table { 
+	width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.table thead {
+    background-color:  #e5e5e5;
+}
+
+.table thead th {
+    color: black;
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+    border: none;
+}
+
+.table tbody td {
+    padding: 16px;
+    color: #111;
+    font-weight: 400;
+    font-size: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover .id-link{
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.table tbody tr:hover td {
+    background-color: #f8f9fa; /* Light gray on hover */
+    cursor: pointer;
+}
+
+.table tr:not(:last-child) td{
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.table .muted {
+  color: #6c6c6c;
+} 
+
+.table th.newQty, td.newQty {
   text-align: right;
 }
 
@@ -821,80 +763,6 @@ package-table th.newQty, td.newQty {
 	border: 1px solid #3c3c3c;
 }
 
-/*REPORT TBLE*/
-.report-table td{
-	padding: 16px;
-    color: #111;
-    font-weight: 400;
-    font-size: 15px;
-}
-
-.report-table thead th {
-    color: #ffffff;
-    font-weight: 600;
-    padding: 16px;
-    text-align: left;
-}
-
-.report-table tbody tr:not(:last-child) td{
-	border-bottom: 1px solid #e5e5e5;
-}
-
-.report-table .muted {
-  color: #6c6c6c;
-}
-
-.body-row tr {
-	background-color: white;
-	height: 40px;
-	font-size: 15px;
-    text-align: left;
-}
-
-/*EVENT TABLE*/
-.event-table thead th, .equipment-table thead th, .report-table thead th {
-    color: black;
-    font-weight: 600;
-    padding: 16px;
-    text-align: left;
-    border: none;
-}
-
-.event-table tbody td, .equipment-table tbody td, .report-table tbody td {
-    padding: 16px;
-    color: #111;
-    font-weight: 400;
-    font-size: 15px;
-    border-bottom: 1px solid #e5e5e5;
-    transition: background-color 0.2s ease;
-}
-
-/* Remove border from last row */
-.event-table tbody tr:last-child td, .equipment-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* ROW HOVER EFFECT */
-.event-table tbody tr:hover td, .equipment-table tbody tr:hover td, .report-table tbody tr:hover td {
-    background-color: #f8f9fa; /* Light gray on hover */
-    cursor: pointer;
-}
-
-.event-table tbody tr:hover, .equipment-table tbody tr:hover .id-link{
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-}
-
-/* Also target the first column strong/a tags if class isn't explicit */
-.event-table tbody tr:hover td:first-child, .equipment-table tbody tr:hover td:first-child strong, .report-table tbody tr:hover td:first-child strong,
-.event-table tbody tr:hover td:first-child, .equipment-table tbody tr:hover td:first-child a, .report-table tbody tr:hover td:first-child a {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-    color: var(--secondary) !important;
-}
-
 .id-link {
     color: #ff8c00 !important; /* Orange */
     text-decoration: none; /* No underline initially */
@@ -903,9 +771,9 @@ package-table th.newQty, td.newQty {
 }
 
 /* STATUS */
-.status.completed, .status.available { color: #22c55e; font-weight: 600; }
-.status.unavailable { color: red; font-weight: 600; }
-.status.in-progress { color: #facc15; font-weight: 600; }
+.status.completed, .status.available { color: #22c55e; font-weight: 650; }
+.status.unavailable { color: red; font-weight: 650; }
+.status.in-progress { color: #dcb82a; font-weight: 650; }
 
 /*EVENT DETAILS*/
 .event-details-card {
@@ -913,7 +781,6 @@ package-table th.newQty, td.newQty {
     border-radius: 18px;
     padding: 18px 30px;
     margin-bottom: 10px;
-    border: 3px solid #6c6c6c; /* stroke weight 3 */
 }
 
 .event-details-row {
@@ -922,6 +789,16 @@ package-table th.newQty, td.newQty {
     margin-bottom: 15px;
     font-size: 15px;
     color: #111;
+}
+
+#eventTime option:hover {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+#eventTime option:checked {
+  background-color: #ff8c00;
+  color: #fff;
 }
 
 .event-details-row:last-child {
@@ -950,6 +827,7 @@ package-table th.newQty, td.newQty {
 .orange-text {
     color: #ff8c00;
     font-weight: 600;
+     font-size: 18px;
 }
 
 /* PACKAGE SECTION */
@@ -992,14 +870,28 @@ package-table th.newQty, td.newQty {
     width: 100%;               /* Ensures the wrapper takes available space */
 }
 
-/* Reset button */
-.btn-reset {
-  background-color: #d9d9d9;
-  color: black;
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 10px;
 }
 
-.btn-reset:hover {
-  background-color: #C4C4C4;
+.reset-btn {
+    background-color: #d4d3d3;
+    color: black;
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1px solid #0d110f; /* Added thin border */
+    width: 160px;
+    text-align: center;
+}
+
+.reset-btn:hover {
+    background-color: #a9a9a9;
 }
 
 /* Save button */
@@ -1012,6 +904,72 @@ package-table th.newQty, td.newQty {
   background-color: #E65F0E;
 }
 
+/* EDIT BUTTON (blue circular icon) */
+.edit-btn {
+    width: 34px;
+    height: 34px;
+    background-color: #0d4df5; /* blue */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* ICON inside button */
+.edit-btn i {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* Hover effect */
+.edit-btn:hover {
+    background-color: #2563eb;
+}
+
+/* DELETE BUTTON (red circular icon) */
+.delete-btn {
+    width: 34px;
+    height: 34px;
+    background-color: #eb1010; /* red */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* ICON inside button */
+.delete-btn i {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* Hover effect */
+.delete-btn:hover {
+    background-color: #cb0000;
+}
+
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between edit & delete */
+}
+
+/* Disabled action buttons for completed events */
+.action-buttons.disabled {
+    opacity: 0.35;
+    pointer-events: none; /* ⛔ prevents clicking */
+    cursor: not-allowed;
+}
+
+.action-buttons.disabled i {
+    filter: grayscale(100%);
+}
+
 /* INLINE FORM FIELDS */
 .event-field-inline {
     display: flex;
@@ -1022,7 +980,7 @@ package-table th.newQty, td.newQty {
 .event-field-inline label {
     font-size: 14px;
     color: #000;
-    font-weight: bold;
+    font-weiht: bold;
     /* Fixed width ensures all inputs start at the same vertical line */
     width: 110px; 
     min-width: 110px; 
@@ -1030,20 +988,17 @@ package-table th.newQty, td.newQty {
 }
 
 .field-input {
-    width: 100%;
-    max-width: 400px;
+    width: 100%;       /* Forces input to fill remaining space */
     flex: 1;           /* Allows growing in flex container */
-    padding: 10px 16px;
+    padding: 10px 15px;
     border-radius: 30px;
-    background-color: #e6e4e4;
+    background-color: #f5f5f5;
     color: #000;
-    border: 1px solid #cfcfcf;
+    border: 1.5px solid #706b6b;
     font-size: 14px;
     outline: none;
     box-sizing: border-box;
-    min-width: 0;      
-    display: block;
-    transition: all 0.2s ease;
+    min-width: 0;      /* Prevents flexbox overflow issues */
 }
 
 select.field-input {
@@ -1071,21 +1026,21 @@ select.field-input {
     box-shadow: 0 0 5px #ff8c00;
 }
 
-.field-input[readonly] {
+.field-input[readonly]{
     background-color: #e6e4e4;
-    color: #000000;
+    color: black;
     border: 1px solid #cfcfcf;
-    cursor: default;
+    cursor: not-allowed;
+    font-weight: 600;
 }
 
-.field-input.highlight-readonly {
-    background-color: #cfcfcf;
-    color: #ff751f;
+.field-input .highlight-readonly {
+    background-color: #e6e4e4;
+    color: #e07e06;
     font-weight: 600;
     cursor: not-allowed;
-    border: 1px solid #000000;
+     border: 1px solid black;
 }
-
 
 /* ===== MODAL OVERLAY ===== */
 .modal-overlay {
@@ -1179,7 +1134,7 @@ select.field-input {
     margin-top: 0; /* Reset top margin for inline look */
     cursor: pointer;
     font-weight: 400;
-    color: white
+    color: white;
 }
 
 /* The actual radio circle */
@@ -1198,13 +1153,13 @@ select.field-input {
 }
 
 .image-box {
-    width: 280px !important;
-    height: 221px !important;
-    min-width: 280px;
-    min-height: 221px;
+    width: 100%;
+    height: 100%; !important;
+    min-width: 100%;
+    min-height: 100%;
     background: white;
     border-radius: 14px;
-    border: 1px solid #ccc; /* Thin border */
+    border: 1px solid ; /*Thin border */
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -1213,6 +1168,22 @@ select.field-input {
     transition: opacity 0.2s;
     overflow: hidden;
     margin: 0 auto;
+}
+
+.image-box-static {
+    width: 100%;
+    height: 100%; /* Ikut height container kat atas */
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: white; /* Sesuaikan dengan tema gelap hang */
+    overflow: hidden; /* Supaya gambar tak terkeluar box */
+    padding: 20px; /* Bagi ruang supaya teks tak rapat sangat dengan tepi box */
+    box-sizing: border-box; /* Supaya padding tak besarkan box */
+    gap: 15px;
 }
 
 .image-box:hover {
@@ -1241,21 +1212,6 @@ select.field-input {
     margin-top: 25px;
 }
 
-.submit-btn {
-    background: #00c853;
-    color: white;
-    border: 1px solid #00a042; /* Added thin border */
-    padding: 12px 60px;
-    border-radius: 20px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.submit-btn:hover {
-    background: #00e676;
-}
-
 /* CLOSE BUTTON */
 .close-btn {
     position: absolute;
@@ -1272,11 +1228,27 @@ select.field-input {
     color: #c0c0c0;
 }
 
+/* ============================= */
+/* ===== UPDATE (NOT FINISH YET) ======= */
+/* ============================= */
+/* UPDATE MODAL SPECIFIC STYLES */
+.update-modal {
+    background: #ffffff; 
+    width: 400px;
+    padding: 30px;
+    border-radius: 20px;
+    position: relative;
+    color: #000000;
+    text-align: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+}
+
 .input-group {
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
 }
 
 .input-group label {
@@ -1287,9 +1259,8 @@ select.field-input {
 
 /* Updated for a medium size and slightly rounded corners */
 .field-input-static {
-    width: 100%;
-    max-width: 400px;        /* "Middle size" width */
-    padding: 10px 16px;      /* Balanced padding for medium height */
+    width: 100% !important;       /* "Middle size" width */
+    max-width: none !important;      /* Balanced padding for medium height */
     border-radius: 10px;     /* "Rounded a bit" - not a full pill */
     background-color: #f5f5f5; 
     color: #333;
@@ -1299,6 +1270,36 @@ select.field-input {
     box-sizing: border-box;
     display: block;
     transition: all 0.2s ease;
+    min-height: 45px;
+    padding: 10px 15px;
+    
+}
+
+.field-input-static.lock {
+    background-color: #2a2a2a !important; /* Warna gelap */
+    color: #888 !important;              /* Tulisan kelabu pudar */
+    border: 1px solid #444 !important;    /* Border kusam */
+    cursor: not-allowed;                  /* Cursor tanda 'No' */
+    pointer-events: none;                 /* Takleh klik langsung */
+}
+
+/* Untuk box gambar yang locked */
+.image-box-static.lock {
+    background-color: #2a2a2a !important;
+    border: 2px dashed #444 !important;
+    cursor: default !important;
+}
+
+.image-box-static.lock img {
+    opacity: 0.6;           /* Bagi gambar nampak malap sikit */
+    filter: grayscale(40%); /* Bagi nampak kusam sikit */
+}
+
+.form-inputs-grid {
+    width: 100%; /* Pastikan dia guna 100% daripada 50% grid tadi */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Jarak antara input field */
 }
 
 /* Enhancing the focus state */
@@ -1374,20 +1375,6 @@ select.field-input-static {
     margin-bottom: 25px;
 }
 
-/* Update Button */
-.update-btn {
-    background: #0047ff; /* Blue color from image */
-    color: white;
-    border: none;
-    padding: 12px 40px;
-    border-radius: 25px;
-    font-weight: bold;
-    cursor: pointer;
-    width: 150px;
-    font-size: 16px;
-    transition: background 0.2s;
-}
-
 /* Success Icon */
 .success-icon {
     width: 90px;
@@ -1405,6 +1392,80 @@ select.field-input-static {
     color: white;
 }
 
+.modal-icon-check-circle {
+    margin-bottom: 10px !important; /* Kecilkan nombor ni kalau nak lagi rapat */
+}
+
+/* Container Utama Tema Gelap */
+.update-modal-dark {
+    background-color: #1a1a1a; /* Hitam pekat */
+    width: 400px;
+    padding: 40px 20px;
+    border-radius: 20px;
+    border: 1px solid #ff6b00; /* Border oren */
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.3); /* Glow oren nipis */
+    position: relative;
+    text-align: center;
+}
+
+/* Icon Check dlm Bulatan Hijau */
+.modal-icon-check-circle {
+    background-color: #2ecc71;
+    color: #1a1a1a;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin: 0 auto 20px;
+}
+
+/* Tulisan Success Oren */
+.modal-title-orange {
+    color: #ff6b00;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Mesej Putih */
+.modal-message-white {
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+/* Button Oren Glow */
+.btn-orange-glow {
+    background: linear-gradient(to right, #ff8c00, #ff4500);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+    transition: 0.3s;
+}
+
+.btn-orange-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.6);
+}
+
+/* Pangkah (X) Versi Gelap */
+.modal-close-x-dark {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: #888;
+    font-size: 28px;
+    cursor: pointer;
+}
+
 /* Detail View Header */
 .detail-header {
     display: flex;
@@ -1413,24 +1474,64 @@ select.field-input-static {
     margin-bottom: 25px;
 }
 
-.back-link {
-    background: none;
-    border: none;
-    color:white;
-    cursor: pointer;
-    font-size: 1.0rem;
-    padding: 0;
-    transition: color 0.2s;
-}
-
-.back-link:hover { color: #ff8c00; }
-
 /* Detail Grid Layout */
+
 .detail-grid {
     display: grid;
-    grid-template-columns: 350px 1fr;
-    gap: 25px;
-    margin-bottom: 30px;
+    grid-template-columns: 1fr 1fr;
+    gap: 23px;
+    align-items: start;
+    margin-top: 20px;
+}
+
+.detail-img-containerr {
+    width: 100%;
+    /* Kita bagi height yang sama atau sedikit kecil supaya selari dengan form */
+    height: 320px; 
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between Main Card and Total Card */
+}
+
+/* Right Grid Styling */
+.qty-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2x2 layout */
+    gap: 15px;
+    height: 100%; /* Optional: matches height of left column if content allows */
+}
+
+/* Individual Card Styling (General) */
+.qty-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;	
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Left side container (Label + Icon) */
+.qty-info {
+    display: flex;
+    flex-direction: column; /* Stacks icon below text */
+    gap: 8px;
+}
+
+.qty-info span {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.qty-number {
+    font-size: 1.8rem; /* Makes the number stand out */
+    font-weight: 800;
 }
 
 .detail-main-card {
@@ -1438,27 +1539,33 @@ select.field-input-static {
     border: 1px solid #eee;
     border-radius: 16px;
     padding: 20px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.detail-main-card-lock {
+    background: #252525;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    transition: all 0.3s ease;
 }
 
 .detail-img-container {
-    width: 100%;
-    height: 180px;
+   height: 160px;
     background: #fff;
     border-radius: 12px;
     display: flex;
-    justify-content: center;
     align-items: center;
+    overflow: hidden;
     margin-bottom: 15px;
 }
 
 .detail-img-container img {
-    max-height: 90%;
-    object-fit: contain;
-}
-
-
-.detail-img-containerr img {
     max-height: 90%;
     object-fit: contain;
 }
@@ -1485,34 +1592,6 @@ select.field-input-static {
     font-weight: 600;
 }
 
-/* Quantity Summary Cards */
-.qty-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px;
-}
-
-.qty-card {
-    background: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.qty-card span {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.qty-card strong {
-    font-size: 24px;
-    color: #111;
-}
 
 /* Record Section */
 .section-subtitle {
@@ -1745,7 +1824,7 @@ select.field-input-static {
     .events-section {
         overflow-x: auto;
     }
-    .events-table {
+    .table {
         min-width: 600px;
     }
 }
@@ -1793,3 +1872,134 @@ select.field-input-static {
         width: 100%;
     }
 }
+
+/* RIGHT: COORDINATOR */
+
+.assign-coordinator {
+    flex-shrink: 0;      /* never drop */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space:nowrap;
+}
+
+.assign-coordinator label {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+}
+.coordinator-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.coordinator-section label {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* DROPDOWN (FIX CONTRAST ISSUE) */
+.coordinator-select {
+    width: 200px;
+    padding: 9px 14px;
+    border-radius: 20px;
+    background-color: #ffffff;
+    color: #111111; 
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.coordinator-select:focus {
+    outline: none;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }   
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+.shake-input {
+  border: 2px solid red !important;
+  animation: shake 0.4s ease-in-out;
+}
+/* EDIT BUTTON (blue circular icon) */
+.edit-btn {
+    width: 34px;
+    height: 34px;
+    background-color: #0d4df5; /* blue */
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* ICON inside button */
+.edit-btn i {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+/* Hover effect */
+.edit-btn:hover {
+    background-color: #2563eb;
+}
+
+/* Ensure modal is hidden by default and covers screen */
+.custom-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; top: 0; 
+    width: 100%; height: 100%; 
+    background-color: rgba(0,0,0,0.6); /* Darker overlay */
+    backdrop-filter: blur(3px); /* Optional: blurs background */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-buttons {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-yes, .btn-no, .btn-close {
+    padding: 10px 30px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-yes { background-color: #ff4d4d; color: white; }
+.btn-no { background-color: #eee; color: #333; }
+.btn-close { background-color: #2ecc71; color: white; width: 100%; }
+
+.btn-yes:hover { background-color: #ff3333; transform: scale(1.05); }
+.btn-no:hover { background-color: #ddd; }
+

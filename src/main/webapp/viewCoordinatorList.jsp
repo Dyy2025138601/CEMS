@@ -1,0 +1,143 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Dashboard</title>
+
+<link rel="stylesheet" href="farah1.css">
+
+<style>
+@import
+	url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap')
+	;
+</style>
+</head>
+
+<body>
+	<div class="layout">
+
+		<!-- ================= SIDEBAR ================= -->
+		<div class="sidebar" id="sidebar">
+			<div class="sidebar-header">
+				<button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+			</div>
+
+			<nav class="nav-menu">
+				<a href="dashboardManager.jsp" class="nav-item"> <img
+					src="icon/dashboard.png" class="nav-icon"> <span
+					class="link-text">Dashboard</span>
+				</a> <a href="equipmentList.jsp" class="nav-item"> <img
+					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
+				</a> <a href="viewEventList.jsp" class="nav-item"> <img
+					src="icon/event.png" class="nav-icon"> <span
+					class="link-text">Event</span>
+				</a> <a href="PackageController?action=list" class="nav-item"> <img
+					src="icon/package.png" class="nav-icon"> <span
+					class="link-text">Package</span>
+				</a> <a href="viewCoordinatorList.jsp" class="nav-item active"> <img
+					src="icon/coordinator.png" class="nav-icon"> <span
+					class="link-text">Coordinator</span>
+				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+					src="icon/report.png" class="nav-icon"> <span
+					class="link-text">Report</span>
+				</a>
+			</nav>
+
+			<div class="logout-section">
+				<a href="logout.jsp" class="nav-icon-logout"> <img
+					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				</a>
+			</div>
+		</div>
+
+
+		<!-- ================= HEADER ================= -->
+		<div class="header">
+			<div>
+				<h2 class="welcome-text">Event Coordinator</h2>
+			</div>
+
+			<div class="user-profile">
+				<div class="user-info">
+					<span class="user-name">${sessionScope.staffName}</span> <span
+						class="user-role">${sessionScope.staffRole}</span>
+				</div>
+
+				<a href="accountManager.jsp" class="profile-link"> <span
+					class="profile-pic-default"> <img src="icon/user.png">
+				</span>
+				</a>
+			</div>
+		</div>
+
+
+		<!-- ================= MAIN CONTENT ================= -->
+		<main class="main">
+			<div class="content-box">
+				<div class="events-section">
+					<div class="events-header">
+						<div class="header-text">
+							<h2 class="section-title">Coordinator List</h2>
+							<p class="page-desc">Here is the list of all coordinators.</p>
+						</div>
+					</div>
+						<table class="table">
+							<colgroup>
+								<col style="width: 18%">
+								<col style="width: 22%">
+								<col style="width: 18%">
+								<col style="width: 18%">
+								<col style="width: 24%">
+							</colgroup>
+
+							<thead>
+								<tr>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Status</th>
+									<th>Assignments</th>
+									<th>Contact</th>
+								</tr>
+							</thead>
+
+							<tbody>
+								<c:forEach var="c" items="${coordinatorList}">
+									<tr>
+										<td><a
+											href="CoordinatorDetailsController?staffID=${c.staffID}"
+											class="id-link"> <strong>${c.staffID}</strong>
+										</a></td>
+
+										<td>${c.staffName}</td>
+
+										<td><span
+											class="status ${c.assignmentCount > 0 ? 'unavailable' : 'available'}">
+												${c.assignmentCount > 0 ? 'Not Available' : 'Available'} </span></td>
+
+										<td>${c.assignmentCount}</td>
+
+										<td>${c.staffPhoneNum}</td>
+									</tr>
+								</c:forEach>
+							</tbody>
+						</table>
+				</div>
+			</div>
+		</main>
+	</div>
+
+
+	<!-- ================= SCRIPT ================= -->
+	<script>
+		function toggleSidebar() {
+			document.getElementById("sidebar").classList.toggle("collapsed");
+			document.querySelector(".layout").classList.toggle("collapsed");
+		}
+	</script>
+
+</body>
+</html>

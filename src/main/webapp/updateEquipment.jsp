@@ -87,46 +87,108 @@
                 </a>
             </div>
         </div>
-        <main class="main">
-            <div class="content-box">
-                <div class="detail-header-stack">
-                    <button class="back-link" onclick="window.location.href='EquipmentController?action=list'">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <h1 class="page-title">Update Equipment</h1>
+       <main class="main">
+    <div class="content-box">
+        <div class="detail-header-stack">
+            <button class="back-link" onclick="window.location.href='EquipmentController?action=list'">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <h1 class="page-title">Update Equipment Details</h1>
+        </div>
+
+        <form id="updateForm" action="EquipmentController" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="eqpID" value="<%= eqp.getEqpID() %>">
+            
+            <div class="detail-grid">
+                <div class="form-inputs-grid">
+                    <div class="input-group">
+					    <label>Equipment Name</label>
+					    <input type="text" name="eqpName" class="field-input-static lock" 
+					           value="<%= eqp.getEqpName() %>" 
+					           readonly 
+					           style="background-color: #2a2a2a !important; color: #888 !important; cursor: not-allowed;">
+					</div>
+                    
+                    <div class="input-group">
+                        <label>Current Quantity</label>
+                        <input type="number" name="eqpQty" class="field-input-static" 
+                               value="<%= eqp.getEqpQty() %>" min="0" required>
+                    </div>
+
+                    <div class="input-group">
+					    <label>Type of Equipment</label>
+					    <input type="text" class="field-input-static lock" 
+					           value="<%= (eqp instanceof ServiceEquipment) ? "Service" : "Support" %>" 
+					           readonly 
+					           style="background-color: #2a2a2a !important; color: #888 !important; cursor: not-allowed;">
+					</div>
+
+                    <div class="input-group">
+					    <label>Category Details</label>
+					    <input type="text" class="field-input-static lock" 
+					           value="<%= (category != null) ? category.toLowerCase() : "" %>" 
+					           readonly 
+					           style="background-color: #2a2a2a !important; color: #888 !important; cursor: not-allowed;">
+					</div>
                 </div>
 
-                <form id="updateForm" action="EquipmentController" method="post">
-                    <input type="hidden" name="action" value="update">
-                    <input type="hidden" name="eqpID" value="<%= eqp.getEqpID() %>">
+                <div class="image-column-container"> 
+				        <label style="color: white; display: block; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Equipment Image</label>
+				        
+				        <div class="detail-main-card-lock">
+				            <div class="detail-img-containerr">
+				                <label class="image-box-static lock" 
+				                       style="background-color: #2a2a2a !important; cursor: default; border: 2px dashed #444; height: 250px; display: flex; align-items: center; justify-content: center;">
+				                    <img id="imagePreview" 
+				                         src="<%= (eqp.getEqpImage() != null) ? eqp.getEqpImage() : "icon/ImageInsrt.png" %>" 
+				                         style="max-width: 90%; max-height: 90%; object-fit: contain; opacity: 0.5;">
+				                </label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
 
-                    <div class="form-inputs-grid">
-                        <div class="input-group">
-                            <label class="equipment-name-label">Updating: <%= eqp.getEqpName() %></label>
-                        </div>
-                        <div class="input-group">
-                            <label>Update Quantity</label>
-                            <input type="number" id="updateQty" name="eqpQty" class="field-input-static" required>
-                        </div>
-                    </div>
-
-                    <div class="button-wrapper">
-                        <button type="button" class="submit-btn" onclick="validateAndUpdate()">Update Records</button>
-                    </div>
-                </form>
+            <div class="button-wrapper">
+				      <button type="button" class="submit-btn" onclick="submitUpdate()">Update</button>
             </div>
-        </main>
+        </form>
+    </div>
+</main>
     </div>
 
-    <div class="modal-overlay" id="successModal" style="display: none;">
-        <div class="update-modal" style="text-align: center;">
-            <h2 id="successTitle" style="margin-bottom: 20px; color: black;">Successfully<br>Updated</h2>
-            <div class="success-icon"><i class="fas fa-check"></i></div>
-            <button class="submit-btn" onclick="window.location.href='equipmentList.jsp'">OK</button>
-        </div>
-    </div>
+    <div class="modal-overlay" id="successModal" onclick="closeModalOnOutsideClick(event)">
+	    <div class="update-modal-dark" onclick="event.stopPropagation()">
+	        
+	        
+	        <div class="modal-content-area">
+	            <div class="modal-icon-check-circle">
+	                <i class="fas fa-check"></i>
+	            </div>
+	            <h2 class="modal-title-orange">Success!</h2>
+	            <p class="modal-message-white">Equipment has been successfully updated.</p>
+	            
+	            <button class="btn-orange-glow" onclick="window.location.href='EquipmentController?action=list'">
+	                Go to Equipment List
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <script>
+    
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const img = document.getElementById('imagePreview');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
     function validateAndUpdate() {
         const form = document.getElementById('updateForm');
         const qtyInput = document.getElementById('updateQty');
@@ -138,7 +200,62 @@
 
         // Submit the form to the Controller
         form.submit();
+    }  
+    
+    function submitUpdate() {
+        const form = document.getElementById('updateForm'); 
+        const btn = document.querySelector('.submit-btn'); // Ambil referens butang
+        
+        if(!form) {
+            console.error("Form tidak dijumpai!");
+            return;
+        }
+
+        // --- TAMBAH LOADING STATE DISINI ---
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Updating... <i class="fas fa-spinner fa-spin"></i>';
+        btn.style.pointerEvents = 'none'; // Lock butang supaya tak boleh tekan lagi
+        btn.style.opacity = '0.7'; // Nampakkan butang macam tgh "busy"
+        // ------------------------------------
+
+        const formData = new FormData(form);
+
+        fetch("EquipmentController", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById('successModal').style.display = 'flex';
+            } else {
+                alert("Update failed. Sila pastikan Controller hantar response SC_OK.");
+                // Reset butang kalau gagal
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Berlaku ralat teknikal.");
+            // Reset butang kalau ralat
+            btn.innerHTML = originalText;
+            btn.style.pointerEvents = 'auto';
+            btn.style.opacity = '1';
+        });
     }
+    
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+    
+    function closeModalOnOutsideClick(event) {
+        const modal = document.getElementById('successModal');
+        if (event.target === modal) {
+            closeModal('successModal');
+        }
+    }
+    
     </script>
 </body>
 </html>

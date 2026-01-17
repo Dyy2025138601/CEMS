@@ -88,63 +88,81 @@
                 </div>
 
                 <form id="eqpForm" action="EquipmentController" method="post" enctype="multipart/form-data">
-				    <input type="hidden" name="action" value="insert">
-				    
-				    <div class="detail-grid">
-				        
-				        <div class="form-inputs-grid">
-				            <div class="input-group">
-				                <label>Equipment Name</label>
-				                <input type="text" name="eqpName" class="field-input-static" placeholder="e.g. Silver Fork" required>
-				            </div>
-				            <div class="input-group">
-				                <label>Quantity</label>
-				                <input type="number" name="eqpQty" class="field-input-static" min="1" required>
-				            </div>
-				            <div class="input-group">
-				                <label>Type of Equipment</label>
-				                <select id="equipmentType" name="equipmentType" class="field-input-static" onchange="handleTypeChange()" required>
-				                    <option value="" disabled selected>Select type</option>
-				                    <option value="service">Service</option>
-				                    <option value="support">Support</option>
-				                </select>
-				            </div>
-				
-				            <div id="serviceOptions" class="category-options" style="display:none;">
-				                <label>Category (Service):</label>
-				                <div class="radio-group">
-				                    <label><input type="radio" name="service" value="VIP"> VIP</label>
-				                    <label><input type="radio" name="service" value="GUEST"> Guest</label>
-				                </div>
-				            </div>
-				
-				            <div id="supportOptions" class="category-options" style="display:none;">
-				                <label>Category (Support):</label>
-				                <div class="radio-group">
-				                    <label><input type="radio" name="support" value="PREPARATION"> Preparation</label>
-				                    <label><input type="radio" name="support" value="WASHING"> Washing</label>
-				                    <label><input type="radio" name="support" value="STORAGE"> Storage</label>
-				                </div>
-				            </div>
-				        </div> 
-				
-				        <div class="detail-main-card">
-				            <div class="detail-img-containerr">
-				                <label for="equipmentImage" class="image-box-static">
-				                    <img id="imagePreview" src="icon/ImageInsrt.png">
-				                    <span>Click to Upload Image</span>
-				                </label>
-				                <input type="file" id="equipmentImage" name="equipmentImage" hidden accept="image/*" onchange="previewImage(event)">
-				            </div>
-				        </div>
-				        
-				    </div> <div class="button-wrapper">
-				        <button type="button" class="submit-btn" onclick="validateAndSubmit()">Save Equipment</button>
-				    </div>
-				</form>
+                    <input type="hidden" name="action" value="insert">
+                    
+                    <div class="detail-grid">
+					    <div class="form-inputs-grid">
+					        <div class="input-group">
+					            <label>Equipment Name</label>
+					            <input type="text" name="eqpName" class="field-input-static" placeholder="e.g. Silver Fork" required>
+					        </div>
+					        <div class="input-group">
+					            <label>Quantity</label>
+					            <input type="number" name="eqpQty" class="field-input-static" min="1" required>
+					        </div>
+					        <div class="input-group">
+					            <label>Type of Equipment</label>
+					            <select id="equipmentType" name="equipmentType" class="field-input-static" onchange="handleTypeChange()" required>
+					                <option value="" disabled selected>Select type</option>
+					                <option value="service">Service</option>
+					                <option value="support">Support</option>
+					            </select>
+					        </div>
+					
+					        <div id="serviceOptions" class="category-options" style="display:none;">
+					            <label>Category (Service):</label>
+					            <div class="radio-group">
+					                <label><input type="radio" name="service" value="VIP"> VIP</label>
+					                <label><input type="radio" name="service" value="GUEST"> Guest</label>
+					            </div>
+					        </div>
+					
+					        <div id="supportOptions" class="category-options" style="display:none;">
+					            <label>Category (Support):</label>
+					            <div class="radio-group">
+					                <label><input type="radio" name="support" value="PREPARATION"> Preparation</label>
+					                <label><input type="radio" name="support" value="WASHING"> Washing</label>
+					                <label><input type="radio" name="support" value="STORAGE"> Storage</label>
+					            </div>
+					        </div>
+					    </div>
+					
+					    <div class="image-column-container">
+					        <label style="color: white; display: block; margin-bottom: 12px; font-weight: 500; font-size: 14px;">Equipment Image</label>
+					        <div class="detail-main-card">
+					            <div class="detail-img-containerr">
+					                <label for="equipmentImage" class="image-box-static" style="height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+					                    <img id="imagePreview" src="icon/ImageInsrt.png" style="max-width: 80%; max-height: 80%; object-fit: contain;">
+					                    <span style="margin-top: 10px; font-size: 12px; color: #ccc;">Click to Upload Image</span>
+					                </label>
+					                <input type="file" id="equipmentImage" name="equipmentImage" hidden accept="image/*" onchange="previewImage(event)">
+					            </div>
+					        </div>
+					    </div>
+					</div> <div class="button-wrapper">
+                        <button type="button" class="submit-btn" onclick="validateAndSubmit()">Save</button>
+                    </div>
+                </form>
             </div>
         </main>
     </div>
+    
+    <div class="modal-overlay" id="successModal">
+	    <div class="update-modal-dark">
+	     
+	        <div class="modal-content-area">
+	            <div class="modal-icon-check-circle">
+	                <i class="fas fa-check"></i>
+	            </div>
+	            <h2 class="modal-title-orange">Success!</h2>
+	            <p class="modal-message-white">New equipment has been successfully created.</p>
+	            <button class="btn-orange-glow" onclick="window.location.href='EquipmentController?action=list'">
+	                Go to Equipment List
+	            </button>
+	        </div>
+	    </div>
+	</div>
+    
     <script>
         function handleTypeChange() {
             const type = document.getElementById('equipmentType').value;
@@ -185,9 +203,52 @@
         function validateAndSubmit() {
             const form = document.getElementById('eqpForm');
             const imageInput = document.getElementById('equipmentImage');
-            if (!form.checkValidity()) { form.reportValidity(); return; }
-            if (imageInput.files.length === 0) { alert("⚠️ Please upload an image."); return; }
-            form.submit();
+            const btn = document.querySelector('.submit-btn');
+            
+            // 1. Check validasi basic (required fields)
+            if (!form.checkValidity()) { 
+                form.reportValidity(); 
+                return; 
+            }
+            
+            // 2. Check kalau gambar tak upload
+            if (imageInput.files.length === 0) { 
+                alert("⚠️ Please upload an image."); 
+                return; 
+            }
+
+            // --- LOADING STATE ---
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Saving... <i class="fas fa-spinner fa-spin"></i>';
+            btn.style.pointerEvents = 'none';
+            btn.style.opacity = '0.7';
+
+            // 3. Guna FormData untuk hantar fail & input
+            const formData = new FormData(form);
+
+            fetch("EquipmentController", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Tunjuk modal success
+                    document.getElementById('successModal').style.display = 'flex';
+                } else {
+                    alert("Failed to save equipment. Please check console for errors.");
+                    // Reset butang
+                    btn.innerHTML = originalText;
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Technical error occurred.");
+                btn.innerHTML = originalText;
+                btn.style.pointerEvents = 'auto';
+                btn.style.opacity = '1';
+            });
         }
     </script>
 </body>

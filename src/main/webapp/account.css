@@ -291,14 +291,4 @@ body { background-color: var(--dark); color: var(--text-dark); height: 100vh; wi
     background: #252525; color: white; 
 }
 
-.password-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.value {
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 1px; /* Makes bullets look nicer */
-}
 

@@ -48,11 +48,11 @@
                 <input type="hidden" name="action" value="register">
                 <div class="role-group">
                     <label class="role-option">
-                        <input type="radio" name="staffRole" value="MANAGER" required>
+                        <input type="radio" name="staffRole" value="Manager" required>
                         <span>Manager</span>
                     </label>
                     <label class="role-option">
-                        <input type="radio" name="staffRole" value="COORDINATOR" required>
+                        <input type="radio" name="staffRole" value="Coordinator" required>
                         <span>Coordinator</span>
                     </label>
                 </div>

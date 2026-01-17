@@ -4,7 +4,7 @@
     staffBean staff = (staffBean) session.getAttribute("staff");
     
     // Check if logged in AND if the role is correct
-    if (staff == null || !"COORDINATOR".equalsIgnoreCase(staff.getStaffRole())) {
+    if (staff == null || !"Coordinator".equalsIgnoreCase(staff.getStaffRole())) {
         // If they aren't a manager, force them out
         session.invalidate(); 
         response.sendRedirect("login.jsp?error=unauthorized");

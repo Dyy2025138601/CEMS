@@ -525,7 +525,7 @@ body {
     .events-section {
         overflow-x: auto;
     }
-    .events-table {
+    .event-table {
         min-width: 600px;
     }
 }

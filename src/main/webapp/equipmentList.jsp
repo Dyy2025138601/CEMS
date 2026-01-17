@@ -14,6 +14,7 @@
         return;
     }
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -104,18 +105,18 @@
                         </button>
                     </div>
                     <div class="action-group">
-                        <button class="add-btn" onclick="window.location.href='createEquipment.jsp'">
-                            <span>+</span> Create Equipment
-                        </button>
                         <div class="search-container">
                             <span class="search-icon"><img src="icon/search.png"></span>
                             <input type="text" placeholder="Search" class="search-input">
                         </div>
+                        <button class="add-btn" onclick="window.location.href='createEquipment.jsp'">
+                            <span>+</span> Create Equipment
+                        </button>
                     </div>
                 </div>
 
                 <div class="events-section">
-                    <table class="event-table">
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -167,9 +168,9 @@
 						        <td><span class="dot <%= dotClass %>"></span> <%= type %></td>
 						        <td><%= (category != null) ? category.toLowerCase() : "-" %></td>
 						        <td><%= eqp.getEqpQty() %></td>
-						        <!--  --><td class="text-success"><%= eqp.getEqpTotQty() %></td> <%-- Replace with logic if needed --%>
+						        <td class="text-success"><%= eqp.getEqpTotQty() %></td> <%-- Replace with logic if needed --%>
 						        <td>
-						            <button class="action-edit-btn" 
+						            <button class="edit-btn" 
 									        onclick="window.location.href='EquipmentController?action=edit&id=<%= eqp.getEqpID() %>'">
 									    <i class="fas fa-edit"></i>
 									</button>
