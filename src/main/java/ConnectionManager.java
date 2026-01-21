@@ -1,36 +1,52 @@
 package cems;
 
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class ConnectionManager {
-
-    private static final String DB_DRIVER = "org.postgresql.Driver";
-
-    private static final String DB_URL =
-        "jdbc:postgresql://c3v5n5ajfopshl.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dubdf986cmc3n";
-
-    private static final String DB_USER = "udq3kr6kb5d95m";
-
-    private static final String DB_PASSWORD =
-        "p7d05481b5598901f9dc6b0cfefeed76e924796d37cf086fe9a23f6d81e36ee68";
 
     public static Connection getConnection() {
 
         Connection conn = null;
 
         try {
-            Class.forName(DB_DRIVER);
-            System.out.println("✅ PostgreSQL driver loaded");
+            String databaseUrl = System.getenv("DATABASE_URL");
 
-            conn = DriverManager.getConnection(
-                    DB_URL,
-                    DB_USER,
-                    DB_PASSWORD
-            );
+            if (databaseUrl != null) {
+                // =====================
+                // HEROKU ENVIRONMENT
+                // =====================
+                URI dbUri = new URI(databaseUrl);
 
-            conn.setAutoCommit(false);
-            System.out.println("✅ PostgreSQL connected successfully");
+                String username = dbUri.getUserInfo().split(":")[0];
+                String password = dbUri.getUserInfo().split(":")[1];
+
+                String dbUrl =
+                        "jdbc:postgresql://" +
+                        dbUri.getHost() +
+                        ":" + dbUri.getPort() +
+                        dbUri.getPath() +
+                        "?sslmode=require";
+
+                conn = DriverManager.getConnection(dbUrl, username, password);
+
+                System.out.println("✅ Connected to Heroku PostgreSQL");
+
+            } else {
+                // =====================
+                // LOCAL DEVELOPMENT
+                // =====================
+                String dbUrl = "jdbc:postgresql://localhost:5432/cems";
+                String user = "postgres";
+                String pass = "postgres";
+
+                conn = DriverManager.getConnection(dbUrl, user, pass);
+
+                System.out.println("✅ Connected to Local PostgreSQL");
+            }
+
+            conn.setAutoCommit(true);
 
         } catch (Exception e) {
             System.out.println("❌ DATABASE CONNECTION FAILED");
