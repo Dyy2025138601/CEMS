@@ -2,35 +2,41 @@ package cems;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class ConnectionManager {
-    static Connection con;
-    private static final String DB_DRIVER = "oracle.jdbc.driver.OracleDriver";
-    private static final String DB_CONNECTION = "jdbc:oracle:thin:@//localhost:1521/freepdb1";
-    private static final String DB_USER = "CEMS";
-    private static final String DB_PASSWORD = "oracle";
+
+    private static final String DB_DRIVER = "org.postgresql.Driver";
+
+    private static final String DB_URL =
+        "jdbc:postgresql://c3v5n5ajfopshl.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/dubdf986cmc3n";
+
+    private static final String DB_USER = "udq3kr6kb5d95m";
+
+    private static final String DB_PASSWORD =
+        "p7d05481b5598901f9dc6b0cfefeed76e924796d37cf086fe9a23f6d81e36ee68";
 
     public static Connection getConnection() {
+
+        Connection conn = null;
+
         try {
             Class.forName(DB_DRIVER);
-            con = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
-            con.setAutoCommit(true); // Tukar ke true dulu untuk mudahkan testing data masuk
-            System.out.println("Connected successfully.");
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error Connection: " + e.getMessage());
+            System.out.println("✅ PostgreSQL driver loaded");
+
+            conn = DriverManager.getConnection(
+                    DB_URL,
+                    DB_USER,
+                    DB_PASSWORD
+            );
+
+            conn.setAutoCommit(false);
+            System.out.println("✅ PostgreSQL connected successfully");
+
+        } catch (Exception e) {
+            System.out.println("❌ DATABASE CONNECTION FAILED");
             e.printStackTrace();
         }
-        return con;
-    }
 
-    // MAIN METHOD MESTI KAT DALAM NI
-    public static void main(String[] args) {
-        Connection test = ConnectionManager.getConnection();
-        if (test != null) {
-            System.out.println("Memang cun, connection lepas!");
-        } else {
-            System.out.println("Masih fail bro.");
-        }
+        return conn;
     }
 }
