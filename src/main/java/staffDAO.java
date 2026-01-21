@@ -12,18 +12,20 @@ public class staffDAO {
     // CREATE - Insert new staff member with Manual ID
     public boolean addStaff(staffBean staff) {
         boolean isSuccess = false;
-        String sql = "INSERT INTO STAFF (STAFFID, STAFFNAME, STAFFEMAIL, STAFFPHONENUM, STAFFPASSWORD, STAFFROLE) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO STAFF (STAFFID, STAFFNAME, STAFFEMAIL, STAFFPHONENUM, STAFFPASSWORD, STAFFROLE, MANAGERID) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection con = ConnectionManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
+            
+           
             ps.setString(1, staff.getStaffID()); 
             ps.setString(2, staff.getStaffName());
             ps.setString(3, staff.getStaffEmail());
             ps.setString(4, staff.getStaffPhoneNum());
-            ps.setString(5, staff.getStaffPassword()); 
+            ps.setString(5, EncryptionUtil.encrypt(staff.getStaffPassword()));
             ps.setString(6, staff.getStaffRole());
-
+            ps.setNull(7, java.sql.Types.VARCHAR);
+            
             int rowsAffected = ps.executeUpdate();
             isSuccess = rowsAffected > 0;
             
