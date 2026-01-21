@@ -5,47 +5,57 @@ import java.util.*;
 
 public class EquipmentDAO {
 
-    // ======================================================
-    // Generate next Equipment ID (E001, E002...)
-    // ======================================================
-    private static String generateNextId(Connection conn) throws SQLException {
+    /* =====================================================
+       DATABASE CONNECTION
+    ====================================================== */
+
+    private Connection getConnection() throws SQLException {
+        return ConnectionManager.getConnection();
+    }
+
+    /* =====================================================
+       ID GENERATION
+    ====================================================== */
+
+    private String generateNextId(Connection conn) throws SQLException {
 
         String sql =
-            "SELECT eqpid FROM equipment " +
-            "ORDER BY LENGTH(eqpid) DESC, eqpid DESC LIMIT 1";
+                "SELECT eqpid FROM equipment " +
+                "ORDER BY length(eqpid) DESC, eqpid DESC LIMIT 1";
 
         try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                String lastId = rs.getString("eqpid");
-                int num = Integer.parseInt(lastId.replaceAll("[^0-9]", ""));
+                String last = rs.getString("eqpid");
+                int num = Integer.parseInt(last.replaceAll("\\D", ""));
                 return String.format("E%03d", num + 1);
             }
-            return "E001";
         }
+        return "E001";
     }
 
-    // ======================================================
-    // CREATE EQUIPMENT
-    // ======================================================
-    public static boolean addEquipment(Equipment eqp) {
+    /* =====================================================
+       ADD EQUIPMENT
+    ====================================================== */
 
-        String sql =
-            "INSERT INTO equipment " +
-            "(eqpid, eqpname, eqpqty, eqpimage, totqtyavailable, eqptotqty, totqtyinuse, eqptotdamage, eqptotlost) " +
-            "VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0)";
+    public boolean addEquipment(Equipment eqp) {
 
         Connection conn = null;
 
         try {
-            conn = ConnectionManager.getConnection();
+            conn = getConnection();
             conn.setAutoCommit(false);
 
-            String id = generateNextId(conn);
+            String newId = generateNextId(conn);
+
+            String sql =
+                "INSERT INTO equipment " +
+                "(eqpid, eqpname, eqpqty, eqpimage, totqtyavailable, eqptotqty, totqtyinuse, eqptotdamage, eqptotlost) " +
+                "VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0)";
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, id);
+                ps.setString(1, newId);
                 ps.setString(2, eqp.getEqpName());
                 ps.setInt(3, eqp.getEqpQty());
                 ps.setString(4, eqp.getEqpImage());
@@ -54,28 +64,27 @@ public class EquipmentDAO {
                 ps.executeUpdate();
             }
 
-            if (eqp instanceof ServiceEquipment) {
-                String child =
-                    "INSERT INTO serviceequipment (eqpid, serviceset) VALUES (?, ?)";
-                try (PreparedStatement ps = conn.prepareStatement(child)) {
-                    ps.setString(1, id);
+            if (eqp instanceof ServiceEquipment se) {
+
+                String s =
+                        "INSERT INTO serviceequipment(eqpid, serviceset) VALUES (?, ?)";
+
+                try (PreparedStatement ps = conn.prepareStatement(s)) {
+                    ps.setString(1, newId);
                     ps.setString(2,
-                        ((ServiceEquipment) eqp).getServiceSet() == null
-                            ? "GUEST"
-                            : ((ServiceEquipment) eqp).getServiceSet());
+                            se.getServiceSet() == null ? "GENERAL" : se.getServiceSet());
                     ps.executeUpdate();
                 }
-            }
 
-            if (eqp instanceof SupportEquipment) {
-                String child =
-                    "INSERT INTO supportequipment (eqpid, eqpfunction) VALUES (?, ?)";
-                try (PreparedStatement ps = conn.prepareStatement(child)) {
-                    ps.setString(1, id);
+            } else if (eqp instanceof SupportEquipment su) {
+
+                String s =
+                        "INSERT INTO supportequipment(eqpid, eqpfunction) VALUES (?, ?)";
+
+                try (PreparedStatement ps = conn.prepareStatement(s)) {
+                    ps.setString(1, newId);
                     ps.setString(2,
-                        ((SupportEquipment) eqp).getEqpFunction() == null
-                            ? "STORAGE"
-                            : ((SupportEquipment) eqp).getEqpFunction());
+                            su.getEqpFunction() == null ? "STORAGE" : su.getEqpFunction());
                     ps.executeUpdate();
                 }
             }
@@ -83,7 +92,7 @@ public class EquipmentDAO {
             conn.commit();
             return true;
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
             e.printStackTrace();
             return false;
@@ -92,27 +101,29 @@ public class EquipmentDAO {
         }
     }
 
-    // ======================================================
-    // READ ALL EQUIPMENT
-    // ======================================================
+    /* =====================================================
+       GET ALL EQUIPMENT
+    ====================================================== */
+
     public List<Equipment> getAllEquipment() {
 
         List<Equipment> list = new ArrayList<>();
 
         String sql =
             "SELECT e.*, s.serviceset, su.eqpfunction, " +
-            "(SELECT COALESCE(SUM(ee.qtyinuse),0) " +
-            " FROM eventequipment ee " +
+            "COALESCE((" +
+            " SELECT SUM(ee.qtyinuse) FROM eventequipment ee " +
             " JOIN event ev ON ee.eventid = ev.eventid " +
             " WHERE ee.eqpid = e.eqpid " +
             " AND DATE(ev.eventdate) = CURRENT_DATE " +
-            " AND ee.returnstatus = 'N') AS day_qty_in_use " +
+            " AND ee.returnstatus = 'N'" +
+            "),0) AS todayuse " +
             "FROM equipment e " +
             "LEFT JOIN serviceequipment s ON e.eqpid = s.eqpid " +
             "LEFT JOIN supportequipment su ON e.eqpid = su.eqpid " +
             "ORDER BY e.eqpid";
 
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -135,7 +146,7 @@ public class EquipmentDAO {
                 eqp.setEqpQty(rs.getInt("eqpqty"));
                 eqp.setEqpImage(rs.getString("eqpimage"));
 
-                eqp.setTotQtyInUse(rs.getInt("day_qty_in_use"));
+                eqp.setTotQtyInUse(rs.getInt("todayuse"));
                 eqp.setTotQtyAvailable(rs.getInt("totqtyavailable"));
                 eqp.setEqpTotQty(rs.getInt("eqptotqty"));
                 eqp.setEqpTotDamage(rs.getInt("eqptotdamage"));
@@ -144,16 +155,17 @@ public class EquipmentDAO {
                 list.add(eqp);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return list;
     }
 
-    // ======================================================
-    // GET EQUIPMENT BY ID
-    // ======================================================
+    /* =====================================================
+       GET EQUIPMENT BY ID
+    ====================================================== */
+
     public Equipment getEquipmentById(String id) {
 
         String sql =
@@ -163,266 +175,157 @@ public class EquipmentDAO {
             "LEFT JOIN supportequipment su ON e.eqpid = su.eqpid " +
             "WHERE e.eqpid = ?";
 
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, id);
 
             try (ResultSet rs = ps.executeQuery()) {
 
-                if (rs.next()) {
+                if (!rs.next()) return null;
 
-                    Equipment eqp;
+                Equipment eqp;
 
-                    if (rs.getString("serviceset") != null) {
-                        ServiceEquipment s = new ServiceEquipment();
-                        s.setServiceSet(rs.getString("serviceset"));
-                        eqp = s;
-                    } else {
-                        SupportEquipment su = new SupportEquipment();
-                        su.setEqpFunction(rs.getString("eqpfunction"));
-                        eqp = su;
-                    }
-
-                    eqp.setEqpID(rs.getString("eqpid"));
-                    eqp.setEqpName(rs.getString("eqpname"));
-                    eqp.setEqpQty(rs.getInt("eqpqty"));
-                    eqp.setEqpImage(rs.getString("eqpimage"));
-                    eqp.setTotQtyInUse(rs.getInt("totqtyinuse"));
-                    eqp.setTotQtyAvailable(rs.getInt("totqtyavailable"));
-                    eqp.setEqpTotQty(rs.getInt("eqptotqty"));
-                    eqp.setEqpTotDamage(rs.getInt("eqptotdamage"));
-                    eqp.setEqpTotLost(rs.getInt("eqptotlost"));
-
-                    return eqp;
+                if (rs.getString("serviceset") != null) {
+                    ServiceEquipment s = new ServiceEquipment();
+                    s.setServiceSet(rs.getString("serviceset"));
+                    eqp = s;
+                } else {
+                    SupportEquipment su = new SupportEquipment();
+                    su.setEqpFunction(rs.getString("eqpfunction"));
+                    eqp = su;
                 }
+
+                eqp.setEqpID(rs.getString("eqpid"));
+                eqp.setEqpName(rs.getString("eqpname"));
+                eqp.setEqpQty(rs.getInt("eqpqty"));
+                eqp.setEqpImage(rs.getString("eqpimage"));
+
+                eqp.setTotQtyAvailable(rs.getInt("totqtyavailable"));
+                eqp.setEqpTotQty(rs.getInt("eqptotqty"));
+                eqp.setEqpTotDamage(rs.getInt("eqptotdamage"));
+                eqp.setEqpTotLost(rs.getInt("eqptotlost"));
+
+                return eqp;
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    // ======================================================
-    // UPDATE QTY
-    // ======================================================
-    public static boolean updateEquipmentQty(String id, int qty) {
+    /* =====================================================
+       UPDATE EQUIPMENT QUANTITY
+    ====================================================== */
 
-        String select = "SELECT eqpqty FROM equipment WHERE eqpid = ?";
-        String update =
-            "UPDATE equipment SET eqpqty = ?, " +
-            "totqtyavailable = totqtyavailable + ?, " +
-            "eqptotqty = eqptotqty + ? " +
-            "WHERE eqpid = ?";
+    public boolean updateEquipmentQty(String eqpId, int qty) {
 
-        try (Connection conn = ConnectionManager.getConnection()) {
+        String sql =
+            "UPDATE equipment SET eqpqty = ?, totqtyavailable = ? WHERE eqpid = ?";
 
-            int oldQty = 0;
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            try (PreparedStatement ps = conn.prepareStatement(select)) {
-                ps.setString(1, id);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) oldQty = rs.getInt(1);
-            }
+            ps.setInt(1, qty);
+            ps.setInt(2, qty);
+            ps.setString(3, eqpId);
+            return ps.executeUpdate() > 0;
 
-            int diff = qty - oldQty;
-
-            try (PreparedStatement ps = conn.prepareStatement(update)) {
-                ps.setInt(1, qty);
-                ps.setInt(2, diff);
-                ps.setInt(3, diff);
-                ps.setString(4, id);
-                return ps.executeUpdate() > 0;
-            }
-
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    // ======================================================
-    // DASHBOARD METRICS
-    // ======================================================
-    public static int getTotalEquipmentCount() {
+    /* =====================================================
+       TOTAL EQUIPMENT COUNT
+    ====================================================== */
 
-        String sql = "SELECT COALESCE(SUM(eqptotqty),0) FROM equipment";
+    public int getTotalEquipmentCount() {
 
-        try (Connection conn = ConnectionManager.getConnection();
+        String sql = "SELECT COUNT(*) FROM equipment";
+
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) return rs.getInt(1);
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    public static double getEquipmentLossRate() {
+    /* =====================================================
+       ISSUE SUMMARY (USED BY CONTROLLER)
+    ====================================================== */
+
+    public Map<String, Integer> getEquipmentIssueSummary(String from, String to) {
+
+        Map<String, Integer> map = new HashMap<>();
 
         String sql =
-            "SELECT (SUM(eqptotdamage + eqptotlost) * 100.0) / " +
-            "NULLIF(SUM(eqptotqty), 0) FROM equipment";
+            "SELECT condition, COUNT(*) " +
+            "FROM eventequipment ee " +
+            "JOIN event ev ON ee.eventid = ev.eventid " +
+            "WHERE ev.eventdate BETWEEN ?::date AND ?::date " +
+            "GROUP BY condition";
 
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            if (rs.next()) return rs.getDouble(1);
+            ps.setString(1, from);
+            ps.setString(2, to);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0.0;
-    }
-
-    public static String getCategorizedConditionStats() {
-
-        String query =
-            "SELECT category, SUM(totqtyavailable) good, " +
-            "SUM(eqptotdamage) damage, SUM(eqptotlost) lost FROM (" +
-            " SELECT s.serviceset category, e.* FROM equipment e JOIN serviceequipment s ON e.eqpid=s.eqpid " +
-            " UNION ALL " +
-            " SELECT p.eqpfunction category, e.* FROM equipment e JOIN supportequipment p ON e.eqpid=p.eqpid " +
-            ") x GROUP BY category";
-
-        StringBuilder labels = new StringBuilder();
-        StringBuilder good = new StringBuilder();
-        StringBuilder damage = new StringBuilder();
-        StringBuilder lost = new StringBuilder();
-
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
-
-            boolean first = true;
-
-            while (rs.next()) {
-                if (!first) {
-                    labels.append(",");
-                    good.append(",");
-                    damage.append(",");
-                    lost.append(",");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getString(1), rs.getInt(2));
                 }
-
-                labels.append("'").append(rs.getString("category")).append("'");
-                good.append(rs.getInt("good"));
-                damage.append(rs.getInt("damage"));
-                lost.append(rs.getInt("lost"));
-
-                first = false;
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return labels + "|" + good + "|" + damage + "|" + lost;
+        return map;
     }
 
-    // ======================================================
-    // EXTRA FUNCTIONS
-    // ======================================================
-    public List<Map<String, Object>> getUsageHistory(String eqpID) {
+    /* =====================================================
+       USAGE HISTORY
+    ====================================================== */
+
+    public List<Map<String, Object>> getUsageHistory(String eqpid) {
 
         List<Map<String, Object>> list = new ArrayList<>();
 
         String sql =
-            "SELECT s.staffname, ev.eventname, ev.eventdate, " +
-            "ee.qtydamage, ee.qtylost " +
+            "SELECT ev.eventdate, ee.qtyinuse " +
             "FROM eventequipment ee " +
             "JOIN event ev ON ee.eventid = ev.eventid " +
-            "LEFT JOIN staff s ON ev.staffid = s.staffid " +
-            "WHERE ee.eqpid = ? AND (ee.qtydamage > 0 OR ee.qtylost > 0) " +
-            "ORDER BY ev.eventdate DESC";
+            "WHERE ee.eqpid = ? " +
+            "ORDER BY ev.eventdate";
 
-        try (Connection conn = ConnectionManager.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, eqpID);
-            ResultSet rs = ps.executeQuery();
+            ps.setString(1, eqpid);
 
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<>();
-                row.put("staffName", rs.getString("staffname"));
-                row.put("eventName", rs.getString("eventname"));
-                row.put("eventDate", rs.getDate("eventdate"));
-                row.put("qtyDamage", rs.getInt("qtydamage"));
-                row.put("qtyLost", rs.getInt("qtylost"));
-                list.add(row);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("date", rs.getDate(1));
+                    m.put("qty", rs.getInt(2));
+                    list.add(m);
+                }
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return list;
-    }
-
-    public void syncEquipmentTotals(String eqpID) {
-
-        String sql =
-            "UPDATE equipment SET " +
-            "eqptotdamage = (SELECT COALESCE(SUM(qtydamage),0) FROM eventequipment WHERE eqpid=?), " +
-            "eqptotlost   = (SELECT COALESCE(SUM(qtylost),0) FROM eventequipment WHERE eqpid=?) " +
-            "WHERE eqpid=?";
-
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, eqpID);
-            ps.setString(2, eqpID);
-            ps.setString(3, eqpID);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public int getEquipmentStock(String eqpID) {
-
-        String sql = "SELECT eqpqty FROM equipment WHERE eqpid=?";
-
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, eqpID);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public int getBookedQtyOnDate(String eqpID, String date) {
-
-        String sql =
-            "SELECT COALESCE(SUM(ee.qtyinuse),0) " +
-            "FROM eventequipment ee " +
-            "JOIN event ev ON ee.eventid = ev.eventid " +
-            "WHERE ee.eqpid = ? " +
-            "AND ev.eventdate = ? " +
-            "AND ev.is_deleted = 0";
-
-        try (Connection conn = ConnectionManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, eqpID);
-            ps.setDate(2, java.sql.Date.valueOf(date));
-
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt(1);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 }
