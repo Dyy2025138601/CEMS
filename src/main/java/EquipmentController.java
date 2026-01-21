@@ -29,6 +29,7 @@ public class EquipmentController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     	String action = request.getParameter("action");
+    	System.out.println("Current Action: " + action); // DEBUG LINE 1
         // Retrieve the ID here so both if-statements can access it
         String id = request.getParameter("id"); 
         
@@ -39,17 +40,48 @@ public class EquipmentController extends HttpServlet {
             request.setAttribute("eqpList", eqpList);
             request.getRequestDispatcher("equipmentList.jsp").forward(request, response);
         }
+        else if ("insert".equals(action)) {
+        	System.out.println("Attempting to forward to createEquipment.jsp");
+        	
+            request.getRequestDispatcher("createEquipment.jsp").forward(request, response);
+        }
         // Use else if to avoid running multiple checks once a match is found
         else if ("view".equals(action)) {
             // Now 'id' is defined and won't cause an error
             Equipment eqp = dao.getEquipmentById(id);
+            
+            //optional to sync - boleh adjsut later
+            dao.syncEquipmentTotals(id);
+
+             List<java.util.Map<String, Object>> usageHistory = dao.getUsageHistory(id);
+             
             request.setAttribute("equipment", eqp);
+            request.setAttribute("usageHistory", usageHistory);
             request.getRequestDispatcher("viewEquipmentDetail.jsp").forward(request, response);
         }else if ("edit".equals(action)) {
         	    Equipment eqp = dao.getEquipmentById(id); // Use the method we created earlier
         	    request.setAttribute("equipment", eqp);
         	    request.getRequestDispatcher("updateEquipment.jsp").forward(request, response);
         	}
+            else if ("generateReport".equals(action)) {
+            String start = request.getParameter("startDate");
+            String end = request.getParameter("endDate");
+
+            try {
+                // Fetch aggregated data including Lost Quantity
+                // We can reuse the logic we built for the Equipment Issue Summary
+                java.util.Map<String, Object> reportData = dao.getEquipmentIssueSummary(start, end);
+
+                request.setAttribute("reportData", reportData);
+                request.setAttribute("startDate", start);
+                request.setAttribute("endDate", end);
+                request.setAttribute("reportType", "Equipment");
+                
+                request.getRequestDispatcher("viewReport.jsp").forward(request, response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -106,33 +138,41 @@ public class EquipmentController extends HttpServlet {
 
                 // 4. Call DAO to save
                 if (EquipmentDAO.addEquipment(eqp)) {
-                    // Jangan guna sendRedirect!
-                    response.setStatus(HttpServletResponse.SC_OK); 
+                    // Redirect back to list with a success flag to trigger the modal
+                    response.sendRedirect("EquipmentController?action=list&status=success");
                 } else {
-                    response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    // If it fails, reload the create page with an error message
+                    response.sendRedirect("createEquipment.jsp?error=database");
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
                 response.sendRedirect("createEquipment.jsp?error=exception");
             }
-        } else if ("update".equals(action)) {
+        }else if ("update".equals(action)) {
             try {
                 // 1. Ambil data dari form updateEquipment.jsp
                 String id = request.getParameter("eqpID"); 
-                String qtyStr = request.getParameter("eqpQty");
+                String addedQtyStr = request.getParameter("addedQty"); // Nama baru dari JSP
 
-                if (id != null && qtyStr != null) {
-                    int qty = Integer.parseInt(qtyStr);
+                if (id != null && addedQtyStr != null) {
+                    int addedQty = Integer.parseInt(addedQtyStr);
+                    
+                    // 1. Ambil data asal dari database untuk tahu Qty semasa
+                    EquipmentDAO dao = new EquipmentDAO();
+                    Equipment currentEqp = dao.getEquipmentById(id);
+                    
+                    if (currentEqp != null) {
+                        // 2. Logik: "nilai user baru masukkan" + currentQty
+                        int newTotalQty = currentEqp.getEqpQty() + addedQty;
 
-                    // 2. Panggil DAO yang KHAS untuk update Qty sahaja (Macam controller lama hang)
-                    if (EquipmentDAO.updateEquipmentQty(id, qty)) {
-                        // Berjaya: Hantar status 200 supaya Modal Success oren keluar
-                        response.setStatus(HttpServletResponse.SC_OK);
-                        System.out.println("DEBUG: Update Qty Berjaya untuk ID: " + id);
-                    } else {
-                        // Gagal di peringkat database
-                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        // 3. Update database dengan nilai total yang baru
+                        if (EquipmentDAO.updateEquipmentQty(id, newTotalQty)) {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            System.out.println("DEBUG: Tambah stok berjaya. " + currentEqp.getEqpQty() + " + " + addedQty + " = " + newTotalQty);
+                        } else {
+                            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        }
                     }
                 }
             } catch (Exception e) {

@@ -26,6 +26,7 @@ public class EventBean implements Serializable {
 	private int LowPackPax;
 	private int HighPackPax;
 	private int totQtyAvailable;
+	
 	public String getEventID() {
 		return eventID;
 	}
@@ -175,6 +176,5 @@ public class EventBean implements Serializable {
 	public void setTotQtyAvailable(int totQtyAvailable) {
 		this.totQtyAvailable = totQtyAvailable;
 	}
-
 
 }

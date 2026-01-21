@@ -92,4 +92,17 @@ public class staffBean implements Serializable {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	// 1. Add the private variable
+		private int assignmentCount;
+
+		// 2. Add the Getter (This is what JSTL looks for)
+		public int getAssignmentCount() {
+		    return assignmentCount;
+		}
+
+		// 3. Add the Setter
+		public void setAssignmentCount(int assignmentCount) {
+		    this.assignmentCount = assignmentCount;
+		}
 }

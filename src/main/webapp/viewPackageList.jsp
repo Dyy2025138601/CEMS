@@ -1,6 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="cems.staffBean"%>
+<%
+staffBean staff = (staffBean) session.getAttribute("staff");
+
+// Check if logged in AND if the role is correct
+if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
+	session.invalidate();
+	response.sendRedirect("login.jsp?error=unauthorized");
+	return;
+}
+%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +19,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Package</title>
-<link rel="stylesheet" href="farah1.css">
+<link rel="stylesheet" href="style.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -25,21 +36,21 @@
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item"> <img
+				<a href="EventController?action=dashboard" class="nav-item"> <img
 					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
-				</a> <a href="equipmentList.jsp" class="nav-item"> <img
+				</a> <a href="EquipmentController?action=list" class="nav-item"> <img
 					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
-				</a> <a href="viewEventList.jsp" class="nav-item"> <img
-					src="icon/event.png" class="nav-icon"> <span
+				</a> <a href="EventController?action=list" class="nav-item">
+					<img src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
-				</a> <a href="PackageController?action=list" class="nav-item active">
-					<img src="icon/package.png" class="nav-icon"> <span
+				</a> <a href="PackageController?action=list" class="nav-item active"> <img
+					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-				</a> <a href="viewCoordinatorList.jsp" class="nav-item"> <img
-					src="icon/coordinator.png" class="nav-icon"> <span
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item">
+					<img src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+				</a> <a href="generateReport.jsp" class="nav-item"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
@@ -59,7 +70,8 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-					<span class="user-name">Hawa Aqiera</span> <span class="user-role">Manager</span>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
 				</div>
 
 				<a href="accountManager.jsp" class="profile-link"> <span
@@ -82,7 +94,7 @@
 							<p class="page-desc">Here is the list of all packages.</p>
 						</div>
 					</div>
-					
+
 					<table class="table">
 						<colgroup>
 							<col style="width: 18%">
@@ -108,7 +120,10 @@
 									<td>${packageCatering.packName}</td>
 									<td>${packageCatering.lowPackPax}-
 										${packageCatering.highPackPax}</td>
-									<td class="status available">${packageCatering.packAvailability}</td>
+									<td
+										class="status ${packageCatering.availabilityString == 'Y' ? 'available' : 'unavailable'}">
+										${packageCatering.availabilityString == 'Y' ? 'Available' : 'Unavailable'}
+									</td>
 								</tr>
 							</c:forEach>
 						</tbody>

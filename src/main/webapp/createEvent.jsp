@@ -2,6 +2,18 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ page import="cems.staffBean"%>
+<%
+staffBean staff = (staffBean) session.getAttribute("staff");
+
+// Check if logged in AND if the role is correct
+if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
+	session.invalidate();
+	response.sendRedirect("login.jsp?error=unauthorized");
+	return;
+}
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +26,12 @@
 	rel="stylesheet">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="farah1.css">
+<link rel="stylesheet" href="style.css">
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+response.setDateHeader("Expires", 0); // Proxies
+%>
 
 <style>
 .pax-row-message {
@@ -37,29 +54,35 @@
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item"> <img
+				<a href="EventController?action=dashboard" class="nav-item"> <img
 					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
+
 				</a> <a href="EquipmentController?action=list" class="nav-item"> <img
 					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
-				</a> <a href="EventController?action=list" class="nav-item active"> <img
-					src="icon/event.png" class="nav-icon"> <span
+
+				</a> <a href="EventController?action=list" class="nav-item active">
+					<img src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
+
 				</a> <a href="PackageController?action=list" class="nav-item"> <img
 					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-				</a> <a href="ECController?action=list" class="nav-item"> <img
-					src="icon/coordinator.png" class="nav-icon"> <span
+
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item">
+					<img src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+				</a> <a href="generateReport.jsp" class="nav-item"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
 			</nav>
 
+
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -71,7 +94,8 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-					<span class="user-name">Hawa Aqiera</span> <span class="user-role">Manager</span>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
 				</div>
 
 				<a href="accountManager.jsp" class="profile-link"> <span
@@ -82,27 +106,26 @@
 			</div>
 		</div>
 
-		<!-- MAIN CONTENT -->
 		<main class="main">
 			<div class="content-box">
-
-			<div class="header-text">
-				<h2 class="section-title">Create New Event</h2>
-				<p class="page-desc">Please enter required information.</p>
-			</div>
-			
-				<c:if test="${not empty errorMessage}">
-					<div
-						style="color: red; background-color: #ffe6e6; padding: 10px; border: 1px solid red; margin-bottom: 15px;">
-						<strong>Error:</strong> ${errorMessage}
+				<div class="detail-header-stack">
+					<button class="back-link"
+						onclick="window.location.href='EventController?action=list'">
+						<i class="fas fa-arrow-left"></i> Back
+					</button>
+				</div>
+				<div class="events-header">
+					<div class="header-text">
+						<h2 class="section-title">Create New Event</h2>
+						<p class="page-desc">Please enter required information.</p>
 					</div>
-				</c:if>
+				</div>
 
-				<!-- Event Info Form Card -->
-				<form action="EventController" method="post" 
-				onsubmit="return !document.querySelector('.submit-btn').disabled;">
-					<input type="hidden" name="action" value="add">
-					
+				<form id="createEventForm">
+					<input type="hidden" name="action" value="add"> <input
+						type="hidden" name="eventStatus" value="In-progress"> <input
+						type="hidden" name="managerID" value="S001">
+
 					<div class="event-details-card" id="eventFormCard">
 						<div class="event-details-row">
 							<div class="event-field-inline">
@@ -126,7 +149,6 @@
 									<option value="22:00:00">10:00 PM</option>
 								</select>
 							</div>
-
 						</div>
 
 						<div class="event-details-row">
@@ -135,13 +157,11 @@
 									id="eventName" name="eventName" class="field-input"
 									placeholder="Enter event name" required>
 							</div>
-
 							<div class="event-field-inline">
 								<label for="venue">Venue:</label> <input type="text" id="venue"
 									name="eventVenue" class="field-input"
 									placeholder="Enter event venue" required>
 							</div>
-
 							<div class="event-field-inline">
 								<label for="pax">No of Pax:</label> <input type="number"
 									id="pax" name="eventPax" class="field-input" min="1" required>
@@ -165,31 +185,41 @@
 							</h3>
 							<div class="assign-coordinator">
 								<label for="coordinator">Assign Coordinator :</label> <select
-									id="coordinator" name="staffID" class="coordinator-select" 
+									id="coordinator" name="staffID" class="coordinator-select"
 									disabled required>
-									<option value="">Select date & time first</option>
+									<option value="">Select date &amp; time first</option>
+
 									<c:forEach var="coord" items="${coordinatorList}">
-										<option value="${coord.staffID}"
-											data-original-name="${coord.staffName}">
-											${coord.staffName}</option>
+										<%-- Filter: Only show if role is COORDINATOR --%>
+										<c:if test="${coord.staffRole eq 'COORDINATOR'}">
+											<option value="${coord.staffID}"
+												data-original-name="${coord.staffName}">
+												${coord.staffName}</option>
+										</c:if>
 									</c:forEach>
+
 								</select>
 							</div>
 						</div>
+
 					</div>
 
 					<div class="events-section">
 						<div class="events-header">
 							<p class="page-desc">Equipment Included:</p>
+							<div class="form-buttons">
+								<button type="reset" id="resetBtn" class="reset-btn">Reset</button>
+								<button type="submit" class="submit-btn">Submit</button>
+							</div>
 						</div>
 						<table class="table">
 							<thead>
 								<tr>
-									<th>Equipment ID</th>
-									<th>Equipment Name</th>
-									<th>Quantity</th>
-									<th>Serving Set</th>
-									<th>Function</th>
+									<th>ID</th>
+									<th>Name</th>
+									<th>Quantity Use</th>
+									<th>Type</th>
+									<th>Category</th>
 								</tr>
 							</thead>
 							<tbody id="equipmentTableBody"></tbody>
@@ -197,21 +227,52 @@
 					</div>
 
 					<!-- Buttons -->
-					<div class="form-buttons">
-						<button type="reset" id="resetBtn" class="reset-btn">Reset</button>
-						<button type="submit" class="submit-btn">Submit</button>
-					</div>
 				</form>
 			</div>
 		</main>
 	</div>
 
-<script>
+	<div id="createSuccessModal" class="custom-modal">
+		<div class="modal-content">
+			<i class="fas fa-check-circle"
+				style="color: #2ecc71; font-size: 40px;"></i>
+			<h3>Success!</h3>
+			<p>New Event has been successfully created.</p>
+			<div class="modal-buttons">
+				<button class="btn-close"
+					onclick="window.location.href='EventController?action=list'">Go
+					to Event List</button>
+			</div>
+		</div>
+	</div>
+	<div id="logoutModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content">
+			<div class="modal-icon-container"
+				style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+				<i class="fa-solid fa-right-from-bracket"></i>
+			</div>
+			<h3>Confirmation</h3>
+			<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+				you sure to log out?</p>
+			<div class="modal-buttons"
+				style="display: flex; justify-content: center; gap: 15px;">
+				<button class="btn-cancel" onclick="closeLogoutModal()"
+					style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+					Cancel</button>
+				<a href="staffServlet?action=logout" style="text-decoration: none;">
+					<button class="btn-logout"
+						style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+						Log Out</button>
+				</a>
+			</div>
+		</div>
+	</div>
+	<script>
 	/* ---------------- 1. SIDEBAR & HELPERS ---------------- */
 	function toggleSidebar() {
-	    const sidebar = document.getElementById("layout");
-	    if (sidebar) sidebar.classList.toggle("collapsed");
-	}
+			document.getElementById("sidebar").classList.toggle("collapsed");
+			document.querySelector(".layout").classList.toggle("collapsed");
+		}
 
 	const packages = {
 	    <c:forEach var="pkg" items="${packageList}" varStatus="status">
@@ -223,75 +284,7 @@
 	    </c:forEach>
 	};
 
-	/* ---------------- 2. AUTO SELECT PACKAGE & EQUIPMENT ---------------- */
-function autoSelectPackage() {
-    const val = parseInt(document.getElementById("pax").value);
-    const eventDate = document.getElementById("eventDate").value;
-    const nameSpan = document.getElementById("packageName");
-    const tableBody = document.getElementById("equipmentTableBody");
-    const packIdInput = document.getElementById("packID");
-    const hint = document.getElementById("paxHint");
-
-    let selectedPkg = null;
-    for (let key in packages) {
-        let p = packages[key];
-        if (val >= p.range[0] && val <= p.range[1]) {
-            selectedPkg = p;
-            break;
-        }
-    }
-
-    hint.style.display = "none";
-
-    if (selectedPkg) {
-        nameSpan.textContent = selectedPkg.name + " (" + selectedPkg.range[0] + "-" + selectedPkg.range[1] + ")";
-        nameSpan.style.color = "#ff6b00";
-        packIdInput.value = selectedPkg.id;
-
-        let url = `EventController?action=getEquipment&packID=\${selectedPkg.id}`;
-        if (eventDate) url += `&eventDate=\${eventDate}`;
-
-        fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            let shortageDetected = false;
-            tableBody.innerHTML = data.map(eq => {
-                const avail = (eq.avail !== undefined) ? parseInt(eq.avail) : 0;
-                const req = parseInt(eq.qty);
-                const isShortage = (eventDate && avail < req); 
-                if(isShortage) shortageDetected = true;
-
-                // Ambil data serviceSet dan eqpFunction dari JSON
-                const serviceSet = eq.serviceSet ? eq.serviceSet : "-";
-                const eqpFunction = eq.eqpFunction ? eq.eqpFunction : "-";
-
-                return `
-                <tr style="\${isShortage ? 'background-color: #ffe6e6;' : ''}">
-                    <td><strong>\${eq.id}</strong></td>
-                    <td>
-                        \${eq.name} 
-                        \${isShortage ? '<br><b style="color:red; font-size:10px;">! NOT ENOUGH STOCK (Avail: ' + avail + ')</b>' : ''}
-                    </td>
-                    <td>\${req}</td>
-                    <td>\${serviceSet}</td>
-                    <td>\${eqpFunction}</td>
-                </tr>`;
-            }).join('');
-
-            if(shortageDetected) {
-                disableSubmit("* ❌ STOCK ERROR: Some equipment is not enough for the selected date.");
-            } else {
-                enableSubmit();
-            }
-        });
-    } else if (val > 0) {
-        nameSpan.textContent = "Invalid Pax Range!";
-        nameSpan.style.color = "orange";
-        tableBody.innerHTML = ""; // Kosongkan table jika range salah
-        disableSubmit("* ❌ No package available for " + val + " pax.");
-    }
-}
-
+	/* ---------------- 2. HELPER FUNCTIONS ---------------- */
 	function disableSubmit(msg) {
 	    const submitBtn = document.querySelector(".submit-btn");
 	    const hint = document.getElementById("paxHint");
@@ -300,6 +293,7 @@ function autoSelectPackage() {
 	    if(msg) {
 	        hint.innerHTML = msg;
 	        hint.style.display = "block";
+            hint.style.color = "red";
 	    }
 	}
 
@@ -310,129 +304,265 @@ function autoSelectPackage() {
 	    submitBtn.style.backgroundColor = "";
 	    hint.style.display = "none";
 	}
+	
+	/* ---------------- 3. AUTO SELECT PACKAGE & STOCK CHECK ---------------- */
+	/* ---------------- 3. AUTO SELECT PACKAGE & STOCK CHECK ---------------- */
+function autoSelectPackage() {
+    const paxInput = document.getElementById("pax");
+    const val = parseInt(paxInput.value) || 0; 
+    
+    const eventDate = document.getElementById("eventDate").value;
+    const nameSpan = document.getElementById("packageName");
+    const tableBody = document.getElementById("equipmentTableBody");
+    const packIdInput = document.getElementById("packID");
 
-	/* ---------------- 3. RULE BARU: TAPIS COORDINATOR IKUT TARIKH ---------------- */
+    let selectedPkg = null;
+
+    // Find the matching package based on the pax range
+    for (let key in packages) {
+        let p = packages[key];
+        if (val >= p.range[0] && val <= p.range[1]) {
+            selectedPkg = p;
+            break;
+        }
+    }
+
+    if (selectedPkg) {
+        // Update UI
+        nameSpan.textContent = selectedPkg.name + " (" + selectedPkg.range[0] + "-" + selectedPkg.range[1] + ")";
+        nameSpan.style.color = "#ff6b00";
+        packIdInput.value = selectedPkg.id;
+
+        // Construct URL
+        let url = "EventController?action=getEquipment&packID=" + selectedPkg.id + "&pax=" + val;
+        
+        if (eventDate) {
+            url += "&eventDate=" + eventDate;
+        }
+
+        console.log("Fetching URL:", url);
+
+        // --- FETCH JSON ---
+        fetch(url)
+            .then(response => response.json()) // Use .json() again!
+            .then(data => {
+                let shortageDetected = false;
+                
+                const rows = data.map(eq => {
+                    const avail = (eq.avail !== undefined) ? parseInt(eq.avail) : 0;
+                    const req = (eq.qty !== undefined) ? parseInt(eq.qty) : 0;
+                    const isShortage = (eventDate && avail < req); 
+                    if(isShortage) shortageDetected = true;
+
+                    // Handle Type/Category Logic in JS now
+                    let typeDisplay = "-";
+                    let categoryDisplay = "-";
+
+                    // Check Service Set
+                    if (eq.serviceSet && eq.serviceSet !== "-" && eq.serviceSet !== "null") {
+                        typeDisplay = "Service";
+                        categoryDisplay = eq.serviceSet;
+                    } 
+                    // Check Eqp Function
+                    else if (eq.eqpFunction && eq.eqpFunction !== "-" && eq.eqpFunction !== "null") {
+                        typeDisplay = "Support";
+                        categoryDisplay = eq.eqpFunction;
+                    }
+
+                    return `
+                    <tr style="\${isShortage ? 'background-color: #ffe6e6;' : ''}">
+                        <td><strong>\${eq.id}</strong></td>
+                        <td>
+                            \${eq.name} 
+                            \${isShortage ? '<br><b style="color:red; font-size:10px;">! NOT ENOUGH STOCK (Avail: ' + avail + ')</b>' : ''}
+                        </td>
+                        <td>\${req}</td>
+                        <td>\${typeDisplay}</td>
+                        <td>\${categoryDisplay}</td>
+                    </tr>`;
+                }).join('');
+
+                tableBody.innerHTML = rows;
+
+                if(shortageDetected) {
+                    disableSubmit("* ❌ STOCK ERROR: Equipment shortage for selected date.");
+                } else {
+                    enableSubmit();
+                }
+            })
+            .catch(error => console.error("Error:", error));
+
+    } else if (val > 0) {
+        // Invalid Range
+        nameSpan.textContent = "Invalid Pax Range";
+        tableBody.innerHTML = "";
+        disableSubmit("* ❌ No package matches this pax.");
+    }
+}
+
+	/* ---------------- 4. COORDINATOR AVAILABILITY ---------------- */
 	function checkCoordAvailability() {
-	    const date = document.getElementById("eventDate").value;
-	    const coordSelect = document.getElementById("coordinator");
+    const date = document.getElementById("eventDate").value;
+    const coordSelect = document.getElementById("coordinator");
 
-	    if (date) {
-	        // PENTING: Enable balik dropdown bila tarikh dah dipilih
-	        coordSelect.disabled = false;
-	        coordSelect.options[0].textContent = "-- Select Coordinator --";
+    if (date && coordSelect) {
+        coordSelect.disabled = false;
+        
+        // Fetch list of busy staff IDs for this date
+        fetch("EventController?action=getBusyStaff&date=" + date)
+        .then(response => response.json())
+        .then(busyStaffIds => {
+            let allBusy = true; // Flag to check if everyone is busy
+            
+            Array.from(coordSelect.options).forEach(option => {
+                // Skip the default "-- Select --" option
+                if (option.value === "") return;
 
-	        // Betulkan syntax template literal `...&date=${date}`
-	        fetch("EventController?action=getBusyStaff&date=" + date)
-	        .then(response => response.json())
-	        .then(busyStaffIds => {
-	            console.log("Staff Busy pada tarikh " + date + ": ", busyStaffIds);
-	            
-	            Array.from(coordSelect.options).forEach(option => {
-	                if (option.value === "") return;
+                const isBusy = busyStaffIds.includes(option.value);
+                
+                // Hide if busy, Show if free
+                option.style.display = isBusy ? "none" : "block";
+                option.disabled = isBusy;
 
-	                // Semak jika ID staff ada dalam list busy dari server
-	                const isBusy = busyStaffIds.includes(option.value);
-	                
-	                if (isBusy) {
-	                    option.style.display = "none"; // 
-	                    option.disabled = true;        // Disable supaya tak boleh pilih guna keyboard
-	                    
-	                    // Jika Siti Aminah sedang terpilih, kita unselect dia
-	                    if (coordSelect.value === option.value) {
-	                        coordSelect.value = "";
-	                    }
-	                } else {
-	                    option.style.display = "block"; // Munculkan staff yang free
-	                    option.disabled = false;
-	                }
-	            });
-	        })
-	        .catch(err => console.error("Error fetching staff:", err));
-	    }
-	}
-	
-	/* ---------------- 5. COMPANY AVAILABILITY (MAX 4 EVENTS) ---------------- */
-	function checkCompanyAvailability() {
-	    const date = document.getElementById("eventDate").value;
-	    const dateHint = document.getElementById("dateHint");
-	    const submitBtn = document.querySelector(".submit-btn");
+                // If currently selected option is now busy, reset selection
+                if (isBusy && coordSelect.value === option.value) {
+                    coordSelect.value = "";
+                }
+                
+                if (!isBusy) allBusy = false; // Found at least one free staff
+            });
+            // Optional: Show hint if everyone is busy
+        })
+        .catch(error => console.error("Error:", error));
+    }
+}
 
-	    if (date) {
-	        fetch("EventController?action=checkDateAvailability&date=" + date)
-	        .then(response => response.text())
-	        .then(count => {
-	        	console.log("Jumlah event hari ni: " + count); // Tengok kat console (F12)
-	            const eventCount = parseInt(count);
-	            
-	            if (eventCount >= 4) {
-	                // Tunjuk amaran dan disable butang submit
-	                dateHint.innerHTML = "❌ Maximum 4 events reached for this date (" + eventCount + "/4). Please pick another date.";
-	                dateHint.style.display = "block";
-	                dateHint.style.color = "red";
-	                submitBtn.disabled = true;
-	                submitBtn.style.backgroundColor = "#ccc";
-	            } else {
-	                // Sembunyi amaran
-	                dateHint.style.display = "none";
-	                // Jangan terus enable submit, biar logic lain (stok/coord) yang tentukan
-	            }
-	        });
-	    }
-	}
-
-	/* ---------------- 5. LOCK & VALIDATE DATE (MAIN) ---------------- */
+	/* ---------------- 5. MAIN DATE VALIDATION (MAX 4 & PAST DATE) ---------------- */
 	function validateAndCheckDate() {
+    const dateInput = document.getElementById("eventDate");
+    const timeInput = document.getElementById("eventTime");
+    const selectedDate = dateInput.value;
+    const dateHint = document.getElementById("dateHint");
+
+    if (selectedDate) {
+        // 1. Check jika tarikh penuh (Max 4)
+        fetch("EventController?action=checkDateAvailability&date=" + selectedDate)
+        .then(response => response.text())
+        .then(count => {
+            const eventCount = parseInt(count);
+            
+            // Dapatkan masa sekarang
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            
+            // Semak jika Tarikh Penuh
+            if (eventCount >= 4) {
+                dateHint.innerHTML = "* ❌ This date is fully booked (4/4 events).";
+                dateHint.style.display = "block";
+                disableSubmit();
+            } 
+            // Semak jika user pilih masa yang dah lepas untuk HARI INI
+            else if (selectedDate === todayStr) {
+                checkTimeAvailability(); // Panggil function check masa
+            }
+            else {
+                dateHint.style.display = "none";
+                enableSubmit();
+                checkCoordAvailability();
+                autoSelectPackage();
+            }
+        });
+    }
+}
+	
+	function checkTimeAvailability() {
+	    const timeSelect = document.getElementById("eventTime");
 	    const dateInput = document.getElementById("eventDate");
-	    const selectedDate = dateInput.value;
 	    const dateHint = document.getElementById("dateHint");
-	    const submitBtn = document.querySelector(".submit-btn");
+	    
+	    const now = new Date();
+	    const todayStr = now.toISOString().split('T')[0];
+	    
+	    // Jika tarikh dipilih adalah hari ini
+	    if (dateInput.value === todayStr) {
+	        const selectedTime = timeSelect.value; // Format "22:00:00"
+	        const [hours, minutes] = selectedTime.split(':');
+	        
+	        // Bina objek Date untuk masa yang dipilih hari ini
+	        const chosenDateTime = new Date();
+	        chosenDateTime.setHours(parseInt(hours), parseInt(minutes), 0);
 
-	    if (selectedDate) {
-	        // Kita guna satu fetch sahaja untuk check jumlah event
-	        fetch("EventController?action=checkDateAvailability&date=" + selectedDate)
-	        .then(response => response.text())
-	        .then(count => {
-	            const eventCount = parseInt(count);
-	            console.log("Validation - Event Count for " + selectedDate + ": " + eventCount);
-
-	            if (eventCount >= 4) {
-	                // Jika dah penuh (4 atau lebih)
-	                //alert("❌ SORRY! This date is already fully booked (Max 4 events). Please choose another date.");
-	                dateInput.value = ""; // Padam tarikh
-	                dateInput.classList.add("shake-input");
-	                setTimeout(() => dateInput.classList.remove("shake-input"), 1000);
-	                dateHint.innerHTML = "* ❌ Maximum 4 events reached for this date. Please pick another date.";
-	                dateHint.style.display = "block";
-	                dateHint.style.color = "red";
-	                disableSubmit();
-	            } else {
-	                // Jika belum penuh
-	                dateHint.style.display = "none";
-	                enableSubmit();
-	                
-	                // Teruskan dengan check coordinator & stok equipment
-	                checkCoordAvailability();
-	                autoSelectPackage();
-	            }
-	        })
-	        .catch(err => console.error("Error validating date:", err));
+	        if (chosenDateTime < now) {
+	            dateHint.innerHTML = "* ❌ Cannot select a past time for today.";
+	            dateHint.style.display = "block";
+	            dateHint.style.color = "red";
+	            disableSubmit();
+	        } else {
+	            dateHint.style.display = "none";
+	            enableSubmit();
+	        }
 	    }
 	}
 
-	/* ---------------- 4. EVENT LISTENERS (KEMAS) ---------------- */
-	// Hanya panggil validateAndCheckDate untuk tarikh
-	document.getElementById("eventDate").addEventListener("change", validateAndCheckDate);
-	
-	document.getElementById("pax").addEventListener("input", autoSelectPackage);
-	
-	document.getElementById("eventTime").addEventListener("change", checkCoordAvailability);
+window.onload = function() {
+    // A. Sekat Tarikh Lepas & Hari Ini (Set min date to Tomorrow)
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1); // Add 1 day
+    
+    const minDate = tomorrow.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    
+    const datePicker = document.getElementById('eventDate');
+    if (datePicker) {
+        datePicker.setAttribute('min', minDate);
+    }
 
-	document.getElementById("resetBtn").addEventListener("click", () => {
-	    document.getElementById("packageName").textContent = "None";
-	    document.getElementById("equipmentTableBody").innerHTML = "";
-	    document.getElementById("dateHint").style.display = "none";
-	    enableSubmit();
-	});
+    // B. Event Listeners
+    document.getElementById("eventDate").addEventListener("change", validateAndCheckDate);
+    document.getElementById("pax").addEventListener("input", autoSelectPackage);
+    document.getElementById("eventTime").addEventListener("change", checkCoordAvailability);
+
+    // C. Form Submit
+    document.getElementById('createEventForm').onsubmit = function(e) {
+        e.preventDefault();
+        const formData = new URLSearchParams(new FormData(this));
+        fetch('EventController', {
+            method: 'POST',
+            body: formData,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+        .then(response => {
+            if (response.ok) document.getElementById('createSuccessModal').style.display = 'flex';
+            else alert("❌ Failed to create event.");
+        })
+        .catch(err => alert("System Error"));
+    };
+
+    // D. Reset Button
+    document.getElementById("resetBtn").addEventListener("click", () => {
+        setTimeout(() => {
+            // Re-apply the min date after reset
+            datePicker.setAttribute('min', minDate);
+            document.getElementById("packageName").textContent = "None";
+            document.getElementById("equipmentTableBody").innerHTML = "";
+            document.getElementById("dateHint").style.display = "none";
+            enableSubmit();
+        }, 10);
+    });
+};
+    
+ // Tambah ini dalam window.onload
+    document.getElementById("eventTime").addEventListener("change", () => {
+        checkTimeAvailability();
+        checkCoordAvailability(); // Maintain logic sedia ada
+    });
+    function showLogoutModal() {
+	    document.getElementById("logoutModal").style.display = "flex";
+	}
+
+	function closeLogoutModal() {
+	    document.getElementById("logoutModal").style.display = "none";
+	}
 </script>
 
 </body>

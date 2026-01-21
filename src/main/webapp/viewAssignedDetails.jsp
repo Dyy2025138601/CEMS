@@ -2,6 +2,24 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ page import="cems.staffBean"%>
+<%@ page import="cems.Equipment"%>
+<%@ page import="cems.ServiceEquipment"%>
+<%@ page import="cems.SupportEquipment"%>
+<%@ page import="java.util.List"%>
+<%@ page import="cems.EventEquipment"%>
+<%
+staffBean staff = (staffBean) session.getAttribute("staff");
+
+// Sekarang kita benarkan COORDINATOR masuk. 
+// Jika bukan Coordinator, baru kita tendang.
+if (staff == null || !"COORDINATOR".equalsIgnoreCase(staff.getStaffRole())) {
+	session.invalidate();
+	response.sendRedirect("login.jsp?error=unauthorized");
+	return;
+}
+%>
+
 
 <!DOCTYPE html>
 <html>
@@ -15,7 +33,12 @@
 	rel="stylesheet">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="farah1.css">
+<link rel="stylesheet" href="style.css">
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+response.setDateHeader("Expires", 0); // Proxies
+%>
 </head>
 <body>
 	<div class="layout">
@@ -25,18 +48,19 @@
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardCoordinator.jsp" class="nav-item"> <img
+				<a href="EventController?action=dashboardCoordinator" class="nav-item"> <img
 					src="icon/dashboard.png" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
-				</a> <a href="viewAssignedList.jsp" class="nav-item active"> <img
-					src="icon/event.png" class="nav-icon"> <span
-					class="link-text">Event</span>
+				</a> <a href="EventController?action=listCoordinatorEvents"
+					class="nav-item active"> <img src="icon/event.png"
+					class="nav-icon"> <span class="link-text">Event</span>
 				</a>
 			</nav>
 
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -46,11 +70,11 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-                    <span class="user-name">Farhan Mazlan</span>
-                    <span class="user-role">Event Coordinator</span>
-                </div>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
+				</div>
 
-				<a href="account.jsp" class="profile-link"> <span
+				<a href="accountCoord.jsp" class="profile-link"> <span
 					class="profile-pic-default"> <img src="icon/user.png">
 				</span>
 				</a>
@@ -59,11 +83,37 @@
 
 		<main class="main">
 			<div class="content-box">
+				<div class="detail-header-stack">
+					<button class="back-link"
+						onclick="window.location.href='EventController?action=listCoordinatorEvents'">
+						<i class="fas fa-arrow-left"></i> Back
+					</button>
+				</div>
 
 				<div class="events-header">
 					<div class="header-text">
 						<h2 class="section-title">Event Details</h2>
 						<p class="page-desc">Here are the details of the event.</p>
+					</div>
+
+					<div class="action-group">
+						<c:choose>
+							<%-- If status is Completed, show a disabled button --%>
+							<c:when test="${event.eventStatus eq 'Completed'}">
+								<button class="add-btn btn-disabled" disabled>
+									<i class="fas fa-check-circle"></i> Returned
+								</button>
+							</c:when>
+
+							<%-- Otherwise, show the active link --%>
+							<c:otherwise>
+								<a
+									href="EventController?action=viewReturnForm&eventID=${event.eventID}"
+									class="add-btn"> <i class="fas fa-box-open"></i> Return
+									Equipment
+								</a>
+							</c:otherwise>
+						</c:choose>
 					</div>
 				</div>
 
@@ -73,108 +123,152 @@
 					<div class="event-details-row">
 						<div class="event-field-inline">
 							<label for="eventId">Event ID:</label> <input type="text"
-								id="eventId" value="E001" class="field-input highlight-readonly"
+								id="eventId" value="${event.eventID}"
+								class="field-input highlight-readonly" readonly>
+						</div>
+						<div class="event-field-inline">
+							<fmt:formatDate value="${event.eventDate}" pattern="yyyy-MM-dd"
+								var="theFormattedDate" />
+							<label for="eventDate">Event Date:</label> <input type="date"
+								id="eventDate" value="${theFormattedDate}" class="field-input"
 								readonly>
 						</div>
 						<div class="event-field-inline">
+							<fmt:formatDate value="${event.eventTime}" pattern="hh:mm a"
+								var="theFormmatedTime" />
 							<label for="eventTime">Event Time:</label> <input type="text"
-								id="eventTime" value="12.00 PM" class="field-input" readonly>
-						</div>
-						<div class="event-field-inline">
-							<label for="venue">Venue:</label> <input type="text" id="venue"
-								value="Venue B" class="field-input" readonly>
+								id="eventTime" value="${theFormmatedTime}" class="field-input"
+								readonly>
 						</div>
 					</div>
 
 					<div class="event-details-row">
 						<div class="event-field-inline">
 							<label for="eventName">Event Name:</label> <input type="text"
-								id="eventName" value="Wedding" class="field-input" readonly>
+								id="eventName" value="${event.eventName}" class="field-input"
+								readonly>
 						</div>
 						<div class="event-field-inline">
-							<label for="eventDate">Event Date:</label> <input type="date"
-								id="eventDate" value="2025-06-27" class="field-input" readonly>
+							<label for="venue">Venue:</label> <input type="text" id="venue"
+								value="${event.eventVenue}" class="field-input" readonly>
 						</div>
 						<div class="event-field-inline">
 							<label for="pax">No of Pax:</label> <input type="number" id="pax"
-								value="100" class="field-input" readonly>
+								value="${event.eventPax}" class="field-input" readonly>
 						</div>
 					</div>
 				</div>
 
 				<!-- PACKAGE SECTION -->
 				<div class="package-wrapper" id="packageSection">
-
 					<!-- ROW 1 -->
 					<div class="package-header-row">
 						<!-- LEFT -->
 						<h3>
-							Package Selected : <span class="orange-text" id="packageName">Package
-								A</span>
+							Package Selected : <span class="orange-text" id="packageName">${event.packName}</span>
 						</h3>
+						<div class="assign-coordinator">
+							<label for="coordinator">Assign Coordinator :</label> <span
+								class="orange-text" id="staffName">${event.staffName}</span>
+						</div>
 					</div>
 				</div>
-
+				<!-- EQUIPMENT TABLE -->
 				<div class="events-section">
 					<div class="events-header">
-						<h1 class="section-title">Equipment Included</h1>
-						<button class="return-btn"
-							onclick="document.location='returnEquipment.jsp'">Return
-							Equipment</button>
+						<p class="page-desc">Equipment Included</p>
 					</div>
-
-					<!-- EQUIPMENT TABLE -->
-					<table class="equipment-table">
+					<table class="table">
 						<thead>
 							<tr>
-								<th>Equipment ID</th>
-								<th>Equipment Name</th>
-								<th>Quantity</th>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Type</th>
 								<th>Category</th>
+								<th>Quantity Use</th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
-								<td>S001</td>
-								<td>Buffet Tray</td>
-								<td>20</td>
-								<td>Service</td>
-							</tr>
-							<tr>
-								<td>S002</td>
-								<td>Water Dispenser</td>
-								<td>2</td>
-								<td>Service</td>
-							</tr>
-							<tr>
-								<td>D003</td>
-								<td>Glass</td>
-								<td>100</td>
-								<td>Service</td>
-							</tr>
-							<tr>
-								<td>D002</td>
-								<td>Plate</td>
-								<td>100</td>
-								<td>Service</td>
-							</tr>
-							<tr>
-								<td>P003</td>
-								<td>Sink</td>
-								<td>2</td>
-								<td>Support</td>
-							</tr>
+							<c:choose>
+								<c:when test="${not empty equipmentList}">
+									<c:forEach var="item" items="${equipmentList}">
+										<tr class="equipment-row">
+											<td><strong>${item.eqpID}</strong></td>
+											<td>${item.eqpName}</td>
+
+											<%-- Tentukan Type: Jika serviceSet ada isi, maka Service --%>
+											<td><c:choose>
+													<c:when
+														test="${not empty item.serviceSet && item.serviceSet != '-'}">
+                                Service
+                            </c:when>
+													<c:otherwise>Support</c:otherwise>
+												</c:choose></td>
+
+											<%-- Tentukan Category --%>
+											<td><c:choose>
+													<c:when
+														test="${not empty item.serviceSet && item.serviceSet != '-'}">
+                                ${item.serviceSet}
+                            </c:when>
+													<c:otherwise>${item.eqpFunction}</c:otherwise>
+												</c:choose></td>
+
+											<td>${item.qtyInUse}</td>
+										</tr>
+									</c:forEach>
+								</c:when>
+								<c:otherwise>
+									<tr>
+										<td colspan="5" style="text-align: center;">No equipment
+											found for this event.</td>
+									</tr>
+								</c:otherwise>
+							</c:choose>
 						</tbody>
 					</table>
+					<div class="table-actions">
+						<button type="button" class="print-btn" onclick="window.print()">
+							<i class="fas fa-print"></i> Print
+						</button>
+					</div>
 				</div>
 			</div>
 		</main>
 	</div>
-
+	<div id="logoutModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content">
+			<div class="modal-icon-container"
+				style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+				<i class="fa-solid fa-right-from-bracket"></i>
+			</div>
+			<h3>Confirmation</h3>
+			<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+				you sure to log out?</p>
+			<div class="modal-buttons"
+				style="display: flex; justify-content: center; gap: 15px;">
+				<button class="btn-cancel" onclick="closeLogoutModal()"
+					style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+					Cancel</button>
+				<a href="staffServlet?action=logout" style="text-decoration: none;">
+					<button class="btn-logout"
+						style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+						Log Out</button>
+				</a>
+			</div>
+		</div>
+	</div>
 	<script>
 		function toggleSidebar() {
 			document.getElementById("sidebar").classList.toggle("collapsed");
 			document.querySelector(".layout").classList.toggle("collapsed");
+		}
+		function showLogoutModal() {
+			document.getElementById("logoutModal").style.display = "flex";
+		}
+
+		function closeLogoutModal() {
+			document.getElementById("logoutModal").style.display = "none";
 		}
 	</script>
 </body>

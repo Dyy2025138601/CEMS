@@ -2,13 +2,25 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="cems.staffBean"%>
+<%
+    staffBean staff = (staffBean) session.getAttribute("staff");
+    
+    // Check if logged in AND if the role is correct
+    if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
+        session.invalidate(); 
+        response.sendRedirect("login.jsp?error=unauthorized");
+        return;
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Package Details</title>
-<link rel="stylesheet" href="farah1.css">
+<link rel="stylesheet" href="style.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
@@ -16,6 +28,11 @@
 	url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap')
 	;
 </style>
+<%
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+    response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+    response.setDateHeader("Expires", 0); // Proxies
+%>
 </head>
 <body>
 	<div class="layout">
@@ -25,29 +42,35 @@
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item"> <img
+				<a href="EventController?action=dashboard" class="nav-item"> <img
 					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
-				</a> <a href="equipmentList.jsp" class="nav-item"> <img
+					
+				</a> <a href="EquipmentController?action=list" class="nav-item"> <img
 					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
-				</a> <a href="viewEventList.jsp" class="nav-item"> <img
+					
+				</a> <a href="EventController?action=list" class="nav-item"> <img
 					src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
-				</a> <a href="PackageController?action=list" class="nav-item active">
-					<img src="icon/package.png" class="nav-icon"> <span
+					
+				</a> <a href="PackageController?action=list" class="nav-item active"> <img
+					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-				</a> <a href="viewCoordinatorList.jsp" class="nav-item"> <img
+					
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item"> <img
 					src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+				</a> <a href="generateReport.jsp" class="nav-item"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
 			</nav>
 
+
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -59,7 +82,8 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-					<span class="user-name">Hawa Aqiera</span> <span class="user-role">Manager</span>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
 				</div>
 
 				<a href="accountManager.jsp" class="profile-link"> <span
@@ -71,27 +95,38 @@
 		</div>
 
 		<!-- main content page -->
+		<!-- main content page -->
 		<main class="main">
 			<div class="content-box">
-				<h1 class="page-title">${packageCatering.packName}</h1>
-
+				<div class="detail-header-stack">
+					<button class="back-link"
+						onclick="window.location.href='PackageController?action=list'">
+						<i class="fas fa-arrow-left"></i> Back
+					</button>
+				</div>
+				
+				<div class="events-header">
+						<h1 class="section-title">Update Package</h1>
+				</div>
+				
 				<div class="page-info">
+					<h1 class="package-title">${packageCatering.packName}</h1>
 					<div class="info-group">
-						<p class="package-id">Package ID: ${packageCatering.packID}</p>
+						<p class="package-id">ID: ${packageCatering.packID}</p>
 						<p class="package-pax">Pax: ${packageCatering.lowPackPax} -
 							${packageCatering.highPackPax}</p>
 					</div>
 				</div>
 
-				<form action="PackageController" method="post">
-					<input type="hidden" name="action" value="updateQty">
-    				<input type="hidden" name="packID" value="${packageCatering.packID}">
-    				
+				<form id="updatePackageForm">
+					<input type="hidden" name="action" value="updateQty"> <input
+						type="hidden" name="packID" value="${packageCatering.packID}">
+
 					<!-- table -->
 					<div class="table-group">
-						<h1 class="table-title">Equipment Included</h1>
+						<h1 class="section-subtitle">Equipment Included</h1>
 					</div>
-					<table class="event-table">
+					<table class="table">
 						<colgroup>
 							<col style="width: 18%">
 							<col style="width: 22%">
@@ -101,10 +136,10 @@
 						</colgroup>
 						<thead>
 							<tr>
-								<th>Eqp ID</th>
+								<th>ID</th>
 								<th>Name</th>
-								<th>Serving Set</th>
-								<th>Function</th>
+								<th>Type</th>
+								<th>Category</th>
 								<th>Quantity Required</th>
 							</tr>
 						</thead>
@@ -115,10 +150,42 @@
 										value="${item.eqpID}">
 									</td>
 									<td>${item.eqpName}</td>
-									<td class="muted">N/A</td>
-									<td>Storage</td>
-									<td><input type="number" name="qtyRequired" id="newQty"
-										value="${item.qtyRequired}" min="0" class="quantity-input" />
+
+									<%-- DYNAMIC TYPE COLUMN --%>
+									<td><c:choose>
+											<%-- If serviceSet has a value, it's Service equipment --%>
+											<c:when test="${not empty item.serviceSet}">
+												<span class="dot service"></span> Service
+                    						</c:when>
+											<%-- If eqpFunction has a value, it's Support equipment --%>
+											<c:when test="${not empty item.eqpFunction}">
+												<span class="dot support"></span> Support
+                   							</c:when>
+										</c:choose></td>
+
+									<%-- DYNAMIC CATEGORY COLUMN --%>
+									<td style="text-transform: capitalize;"><c:choose>
+											<c:when test="${not empty item.serviceSet}">
+                        							${item.serviceSet}
+                    						</c:when>
+											<c:when test="${not empty item.eqpFunction}">
+                        							${item.eqpFunction}
+                    						</c:when>
+											<c:otherwise>
+                        -
+                    						</c:otherwise>
+										</c:choose></td>
+
+									<td>
+										<div style="display: flex; align-items: center; gap: 5px;">
+											<input type="number" name="qtyRequired"
+												value="${item.qtyRequired}" class="quantity-input">
+											<c:if test="${item.is_paxDepend == 89}">
+												<span
+													style="font-size: 0.9em; color: #888; white-space: nowrap;">
+													(per person) </span>
+											</c:if>
+										</div>
 									</td>
 								</tr>
 							</c:forEach>
@@ -126,8 +193,8 @@
 					</table>
 					<!-- button -->
 					<div class="table-actions">
-						<button type="button" class="btn btn-reset">Reset</button>
-						<button class="btn btn-save">Submit</button>
+						<button type="button" class="btn reset-btn">Reset</button>
+						<button class="btn submit-btn">Submit</button>
 					</div>
 
 				</form>
@@ -135,21 +202,49 @@
 
 		</main>
 	</div>
+	
 	<!-- Success Modal -->
-	<div class="modal-overlay" id="successModal">
-		<div class="modal-box">
-			<button class="modal-close" onclick="closeModal()">×</button>
-
-			<h2>
-				Package Successfully<br>Updated
-			</h2>
-
-			<div class="success-icon">
-				<i class="fas fa-check"></i>
+	<div id="createSuccessModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-icon-container" style="font-size: 50px; color: #2ecc71; margin-bottom: 20px;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 style="color: white; margin-bottom: 10px;">Success!</h3>
+        <p class="modal-text" style="color: #cccccc; margin-bottom: 30px;">
+            The equipment quantities for this package have been updated.
+        </p>
+        <div class="modal-buttons" style="display: flex; justify-content: center;">
+            <button class="btn-logout" 
+                style="background: linear-gradient(to right, #ff8c00, #ff4500); min-width: 200px;"
+                onclick="window.location.href='PackageController?action=list'">
+                Back to Package List
+            </button>
+        </div>
+    </div>
+</div>
+	
+<div id="logoutModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content">
+			<div class="modal-icon-container"
+				style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+				<i class="fa-solid fa-right-from-bracket"></i>
+			</div>
+			<h3>Confirmation</h3>
+			<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+				you sure to log out?</p>
+			<div class="modal-buttons"
+				style="display: flex; justify-content: center; gap: 15px;">
+				<button class="btn-cancel" onclick="closeLogoutModal()"
+					style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+					Cancel</button>
+				<a href="staffServlet?action=logout" style="text-decoration: none;">
+					<button class="btn-logout"
+						style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+						Log Out</button>
+				</a>
 			</div>
 		</div>
 	</div>
-
 	<script>
 		  const inputs = document.querySelectorAll('.quantity-input');
 		
@@ -158,7 +253,7 @@
 		    input.dataset.original = input.value;
 		  });
 		
-		  document.querySelector('.btn-reset').addEventListener('click', () => {
+		  document.querySelector('.reset-btn').addEventListener('click', () => {
 		    inputs.forEach(input => {
 		      input.value = input.dataset.original;
 		      input.closest('tr').classList.remove('edited');
@@ -182,56 +277,41 @@
 	</script>
 
 	<script>
-	    function showModal() {
-	        document.getElementById("successModal").style.display = "flex";
-	    }
 	
-	    function closeModal() {
-	        // hide modal
-	        document.getElementById("successModal").style.display = "none";
-	
-	        // redirect to Event List page
-	        window.location.href = "viewPackageList.jsp";
-	    }
-	
-	    // Close modal when clicking outside
-	    document.getElementById("successModal").addEventListener("click", function (e) {
-	        if (e.target === this) {
-	            closeModal();
-	        }
-	    });
-	</script>
-
-	<script>
-    // 1. Check URL for "success=true"
-    window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success') === 'true') {
-            document.getElementById("successModal").style.display = "flex";
+	// C. Form Submit
+    // Kod untuk Submit Form via AJAX
+// Kod untuk Submit Form via AJAX
+document.getElementById('updatePackageForm').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const formData = new URLSearchParams(new FormData(this));
+    
+    fetch('PackageController', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Tunjukkan modal yang sama gaya dengan logout
+            document.getElementById('createSuccessModal').style.display = 'flex';
+        } else {
+            alert("❌ Failed to update package.");
         }
-    };
-
-    // 2. Close Modal Logic
-    function closeModal() {
-        document.getElementById("successModal").style.display = "none";
-        // Optional: Clean the URL so the modal doesn't pop up again on refresh
-        window.history.replaceState(null, null, window.location.pathname + window.location.search.replace("&success=true", ""));
-    }
-
-    // 3. Close when clicking outside
-    document.getElementById("successModal").addEventListener("click", function (e) {
-        if (e.target === this) {
-            closeModal();
-        }
+    })
+    .catch(err => {
+        console.error("System Error:", err);
+        alert("System Error occurred.");
     });
-</script>
+}; // Pastikan tutup dengan betul di sini
 
-	<script>
-     // Sidebar Toggle Logic
-		function toggleSidebar() {
-			document.getElementById("sidebar").classList.toggle("collapsed");
-			document.querySelector(".layout").classList.toggle("collapsed");
-		}
+// Fungsi Logout (Kekalkan yang sedia ada)
+function showLogoutModal() {
+    document.getElementById("logoutModal").style.display = "flex";
+}
+function closeLogoutModal() {
+    document.getElementById("logoutModal").style.display = "none";
+}
     </script>
 
 </body>

@@ -24,15 +24,10 @@ public class PackageController extends HttpServlet {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// response.getWriter().append("Served at: ").append(request.getContextPath());
+		
 		String action = request.getParameter("action");
 
 		try {
@@ -58,19 +53,6 @@ public class PackageController extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 * 
-	 *      protected void doPost(HttpServletRequest request, HttpServletResponse
-	 *      response) throws ServletException, IOException { // TODO Auto-generated
-	 *      method stub //doGet(request, response); String packID =
-	 *      request.getParameter("packID"); try { if(packID!=null)
-	 *      updatePackage(request, response);
-	 * 
-	 *      } catch (SQLException e) { e.printStackTrace(); } }
-	 */
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String action = request.getParameter("action");
@@ -88,13 +70,12 @@ public class PackageController extends HttpServlet {
 			case "updateQty":
 				updateContentQty(request, response);
 				break;
-
-			// Case 2: Updating the Package Name/Pax (If you build a separate 'Edit Details'
-			// page later)
 			case "updateDetails":
 				updatePackage(request, response);
 				break;
-
+			case "addContent":
+	            addPackageContent(request, response);
+	            break;
 			default:
 				listPackage(request, response);
 				break;
@@ -106,11 +87,27 @@ public class PackageController extends HttpServlet {
 
 	// 1. list package
 	private void listPackage(HttpServletRequest request, HttpServletResponse response)
-			throws SQLException, ServletException, IOException {
-		List<PackageCatering> packageList = PackageDAO.getAllPackages();
-		request.setAttribute("packages", packageList);
-		RequestDispatcher dispatcher = request.getRequestDispatcher("viewPackageList.jsp");
-		dispatcher.forward(request, response);
+	        throws SQLException, ServletException, IOException {
+	    
+	    String dateFilter = request.getParameter("filterDate");
+	    List<PackageCatering> packageList;
+
+	    if (dateFilter != null && !dateFilter.isEmpty()) {
+	        // If user selected a date, use the smart logic
+	        packageList = PackageDAO.getPackagesByDateAvailability(dateFilter);
+	        request.setAttribute("selectedDate", dateFilter); // Send back to keep input filled
+	    } else {
+	        // Default: Show general list (Availability based on generic status)
+	        packageList = PackageDAO.getAllPackages();
+	        // Manually set 'Available' text for display consistency if needed
+	        for(PackageCatering p : packageList) {
+	             p.setAvailabilityOnDate(p.getPackAvailability() == 'Y' ? "Available" : "Unavailable");
+	        }
+	    }
+
+	    request.setAttribute("packages", packageList);
+	    RequestDispatcher dispatcher = request.getRequestDispatcher("viewPackageList.jsp");
+	    dispatcher.forward(request, response);
 	}
 
 	// Package Details
@@ -123,12 +120,42 @@ public class PackageController extends HttpServlet {
 
 		// list equipment
 		List<EquipmentPackage> list = PackageDAO.getPackageContents(packID);
+		
+		//list equipment that can be added
+		List<EquipmentPackage> availableList = PackageDAO.getAvailableEquipmentForPackage(packID);
 
 		request.setAttribute("packageCatering", packageCatering);
 		request.setAttribute("contentList", list);
+		
+		request.setAttribute("availableEquipmentList", availableList);
 
 		RequestDispatcher dispatcher = request.getRequestDispatcher("viewPackageDetails.jsp");
 		dispatcher.forward(request, response);
+	}
+	
+	//add new equipment
+	private void addPackageContent(HttpServletRequest request, HttpServletResponse response) 
+	        throws SQLException, IOException {
+
+	    String packID = request.getParameter("packID"); 
+	    String eqpID = request.getParameter("eqpID");
+	    
+	    int qty = 0;
+	    try {
+	        qty = Integer.parseInt(request.getParameter("qtyRequired"));
+	    } catch (NumberFormatException e) {
+	        qty = 1; 
+	    }
+	    
+	    // --- CHANGE THIS LINE ---
+	    String checkBoxVal = request.getParameter("isPaxDepend");
+	    // Change (checkBoxVal != null) to the comparison below:
+	    char is_paxDepend = "true".equalsIgnoreCase(checkBoxVal) ? 'Y' : 'N';
+	    // ------------------------
+
+	    PackageDAO.addPackageContent(packID, eqpID, qty, is_paxDepend);
+
+	    response.sendRedirect("PackageController?action=view&packID=" + packID);
 	}
 
 	// 2. SHOW edit form
@@ -156,17 +183,19 @@ public class PackageController extends HttpServlet {
 	    // Get Arrays of IDs and Quantities (String[] because there are multiple rows)
 	    String[] eqpIDs = request.getParameterValues("eqpID");
 	    String[] quantities = request.getParameterValues("qtyRequired");
-
 	    if (eqpIDs != null && quantities != null) {
-	        // Loop through the arrays and update each item
-	        for (int i = 0; i < eqpIDs.length; i++) {
-	            String eqpID = eqpIDs[i];
-	            int qty = Integer.parseInt(quantities[i]);
-	            
-	            // Update individual row
-	            PackageDAO.updateContentQty(packID, eqpID, qty);
-	        }
-	    }
+            for (int i = 0; i < eqpIDs.length; i++) {
+                String eqpID = eqpIDs[i];
+                int qty = Integer.parseInt(quantities[i]);
+                
+                String paramName = "is_paxDepend_" + eqpID; 
+                String val = request.getParameter(paramName);
+                char is_paxDepend = (val != null) ? 'Y' : 'N';
+                
+                // Call DAO
+                PackageDAO.updateContentQty(packID, eqpID, qty, is_paxDepend);
+            }
+        }
 
 	    // Redirect with success flag so the Modal opens
 	    response.sendRedirect("PackageController?action=view&packID=" + packID + "&success=true");
@@ -180,7 +209,6 @@ public class PackageController extends HttpServlet {
 		int lowPackPax = Integer.parseInt(request.getParameter("lowPackPax"));
 		int highPackPax = Integer.parseInt(request.getParameter("highPackPax"));
 		char packAvailability = request.getParameter("packAvailability").charAt(0);
-		char companyAvailability = request.getParameter("companyAvailability").charAt(0);
 
 		PackageCatering packageCatering = new PackageCatering();
 
@@ -189,7 +217,6 @@ public class PackageController extends HttpServlet {
 		packageCatering.setLowPackPax(lowPackPax);
 		packageCatering.setHighPackPax(highPackPax);
 		packageCatering.setPackAvailability(packAvailability);
-		packageCatering.setCompanyAvailability(companyAvailability);
 
 		PackageDAO.updatePackage(packageCatering);
 

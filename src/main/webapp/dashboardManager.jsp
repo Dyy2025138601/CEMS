@@ -2,6 +2,57 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ page import="cems.staffBean"%>
+<%@ page import="cems.Equipment"%>
+<%
+staffBean staff = (staffBean) session.getAttribute("staff");
+
+// Check if logged in AND if the role is correct
+if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
+	session.invalidate();
+	response.sendRedirect("login.jsp?error=unauthorized");
+	return;
+}
+%>
+<%
+// Retrieve statistics and data from request attributes
+int pendingCount = (request.getAttribute("pendingCount") != null) ? (Integer) request.getAttribute("pendingCount") : 0;
+int eventCount = (request.getAttribute("eventCount") != null) ? (Integer) request.getAttribute("eventCount") : 0;
+int eqpCount = (request.getAttribute("eqpCount") != null) ? (Integer) request.getAttribute("eqpCount") : 0;
+
+String evChartData = (String) request.getAttribute("evChartData");
+
+String returnRate = (String) request.getAttribute("returnRate");
+String eventGrowth = (String) request.getAttribute("eventGrowth");
+String lossRate = (String) request.getAttribute("lossRate");
+
+// Default values if null
+if (returnRate == null)
+	returnRate = "0.0";
+if (eventGrowth == null)
+	eventGrowth = "0.0";
+if (lossRate == null)
+	lossRate = "0.0";
+
+if (evChartData == null)
+	evChartData = "0,0,0";
+%>
+<%
+String chartLabels = (String) request.getAttribute("chartLabels");
+String chartGood = (String) request.getAttribute("chartGood");
+String chartDamaged = (String) request.getAttribute("chartDamaged");
+String chartLost = (String) request.getAttribute("chartLost");
+
+// Defaults to prevent JS errors if DB is empty
+if (chartLabels == null)
+	chartLabels = "'No Data'";
+if (chartGood == null)
+	chartGood = "0";
+if (chartDamaged == null)
+	chartDamaged = "0";
+if (chartLost == null)
+	chartLost = "0";
+%>
 
 <!DOCTYPE html>
 <html>
@@ -9,13 +60,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Manager</title>
-<link rel="stylesheet" href="styleDashboard.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
 @import
 	url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap')
 	;
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+response.setDateHeader("Expires", 0); // Proxies
+%>
+</head>
 </head>
 <body>
 	<div class="layout">
@@ -25,33 +84,34 @@
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item active"> <img
-					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
-					class="link-text">Dashboard</span>
-					
+				<a href="EventController?action=dashboard" class="nav-item active">
+					<img src="icon/dashboard.png" alt="Dashboard" class="nav-icon">
+					<span class="link-text">Dashboard</span>
+
 				</a> <a href="EquipmentController?action=list" class="nav-item"> <img
 					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
-					
+
 				</a> <a href="EventController?action=list" class="nav-item"> <img
 					src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
-					
+
 				</a> <a href="PackageController?action=list" class="nav-item"> <img
 					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-					
-				</a> <a href="viewCoordinatorList.jsp" class="nav-item"> <img
-					src="icon/coordinator.png" class="nav-icon"> <span
+
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item">
+					<img src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+				</a> <a href="generateReport.jsp" class="nav-item"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
 			</nav>
 
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -63,7 +123,8 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-					<span class="user-name">Hawa Aqiera</span> <span class="user-role">Manager</span>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
 				</div>
 
 				<a href="accountManager.jsp" class="profile-link"> <span
@@ -79,23 +140,34 @@
 				<div class="stat-card">
 					<h3>PENDING RETURNS</h3>
 					<div class="value">
-						12 <span class="trend down"><small>▼ 5%</small></span>
+						<%=pendingCount%>
+						<span
+							class="trend <%=Double.parseDouble(returnRate) > 20 ? "down" : "up"%>">
+							<small><%=returnRate%>% of total</small>
+						</span>
 					</div>
 				</div>
 				<div class="stat-card">
 					<h3>TOTAL EVENTS</h3>
 					<div class="value">
-						24 <span class="trend up"><small>▲ 10%</small></span>
+						<%=eventCount%>
+						<span class="trend up"> <small>▲ <%=eventGrowth%>%
+								New
+						</small>
+						</span>
 					</div>
 				</div>
 				<div class="stat-card">
-					<h3>TOTAL EQUIPMENT</h3>
+					<h3>TOTAL EQUIPMENT (Good Condition)</h3>
 					<div class="value">
-						150 <span class="trend up"><small>▲ 2%</small></span>
+						<%=eqpCount%>
+						<span
+							class="trend <%=Double.parseDouble(lossRate) > 5 ? "down" : "up"%>">
+							<small><%=lossRate%>% Damaged/Lost</small>
+						</span>
 					</div>
 				</div>
 			</div>
-
 			<div class="charts-row">
 				<div class="chart-card">
 					<div class="chart-header">
@@ -119,7 +191,7 @@
 				<div class="events-header">
 					<h2 class="section-title">Upcoming Events</h2>
 				</div>
-				<table class="event-table">
+				<table class="table">
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -131,97 +203,72 @@
 						</tr>
 					</thead>
 					<tbody>
-						<c:forEach items="${events}" var="event">
-							<tr>
-								<td><a
-									href="EventController?action=view&eventID=${event.eventID}"
-									class="id-link"> <strong>${event.eventID}</strong>
-								</a></td>
-								<td>${event.eventName}</td>
-								<td><fmt:formatDate value="${event.eventDate}"
-										pattern="dd-MM-yyyy" /> <br> <fmt:formatDate
-										value="${event.eventTime}" pattern="hh:mm a" /></td>
-								<td>${event.eventVenue}</td>
-								<td>Package A</td>
-								<td
-									class="status ${event.eventStatus == 'Completed' ? 'completed' : 'in-progress'}">
-									${event.eventStatus}</td>
-							</tr>
-							<!-- 
-							<tr>
-								<td><a href="viewAssignedEvent.html?eventId=E002"
-									class="id-link"> <strong>E002</strong>
-								</a></td>
-								<td>Wedding</td>
-								<td>29-06-2025<br> 2.00 PM
-								</td>
-								<td>Venue B</td>
-								<td>Package B</td>
-								<td class="status completed">Completed</td>
-							</tr>
+						<%
+						// Retrieve and cast the events list
+						java.util.List<cems.EventBean> events = (java.util.List<cems.EventBean>) request.getAttribute("events");
 
-							<tr>
-								<td><a href="viewAssignedEvent.html?eventId=E003"
-									class="id-link"> <strong>E003</strong>
-								</a></td>
-								<td>Birthday Party</td>
-								<td>30-06-2025<br> 10.00 AM
-								</td>
-								<td>Venue C</td>
-								<td>Package C</td>
-								<td class="status in-progress">In-progress</td>
-							</tr>-->
-						</c:forEach>
-					</tbody>
-				</table>
-			</div>
+						if (events != null && !events.isEmpty()) {
+							// Setup Date Formatters
+							java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("dd-MM-yyyy");
+							java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("hh:mm a");
 
-			<div class="events-section">
-				<div class="events-header">
-					<h2 class="section-title">Report List</h2>
-				</div>
-				<table class="event-table">
-					<colgroup>
-						<col style="width: 15%">
-						<col style="width: 25%">
-						<col style="width: 30%">
-						<col style="width: 30%">
-					</colgroup>
-					<thead>
+							for (cems.EventBean event : events) {
+								// Determine status class
+								String statusClass = "in-progress";
+								if ("Completed".equalsIgnoreCase(event.getEventStatus())) {
+							statusClass = "completed";
+								}
+						%>
 						<tr>
-							<th>Report ID</th>
-							<th>Type</th>
-							<th>Date Range</th>
-							<th>Date Generated</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td><a href="viewReportList.jsp?packID=R001" class="id-link">
-									<strong>R001</strong>
+							<td><a
+								href="EventController?action=view&eventID=<%=event.getEventID()%>"
+								class="id-link"> <strong><%=event.getEventID()%></strong>
 							</a></td>
-							<td>Event Report</td>
-							<td>22 May - 29 May 2025</td>
-							<td>30 May 2025</td>
+							<td><%=event.getEventName()%></td>
+							<td><%=dateFormat.format(event.getEventDate())%><br>
+								<%=timeFormat.format(event.getEventTime())%></td>
+							<td><%=event.getEventVenue()%></td>
+							<td><%=(event.getPackName() != null) ? event.getPackName() : "N/A"%></td>
+							<td class="status <%=statusClass%>"><%=event.getEventStatus()%>
+							</td>
 						</tr>
+						<%
+						}
+						} else {
+						%>
 						<tr>
-							<td><a href="viewReportList.jsp?packID=R002" class="id-link"><strong>R002</strong></a></td>
-							<td>Event Report</td>
-							<td>21 May 2025</td>
-							<td>27 May 2025</td>
+							<td colspan="6" style="text-align: center;">No upcoming
+								events found.</td>
 						</tr>
-						<tr>
-							<td><a href="viewReportList.jsp?packID=R001" class="id-link"><strong>Q001</strong></a></td>
-							<td>Equipment Report</td>
-							<td>15 June - 21 June 2025</td>
-							<td>22 June 2025</td>
-						</tr>
+						<%
+						}
+						%>
 					</tbody>
 				</table>
 			</div>
 		</main>
 	</div>
-
+	<div id="logoutModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content">
+			<div class="modal-icon-container"
+				style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+			</div>
+			<h3>Confirmation</h3>
+			<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+				you sure to log out?</p>
+			<div class="modal-buttons"
+				style="display: flex; justify-content: center; gap: 15px;">
+				<button class="btn-cancel" onclick="closeLogoutModal()"
+					style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+					Cancel</button>
+				<a href="staffServlet?action=logout" style="text-decoration: none;">
+					<button class="btn-logout"
+						style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+						Log Out</button>
+				</a>
+			</div>
+		</div>
+	</div>
 	<script>
 		// Sidebar Toggle Logic
 		function toggleSidebar() {
@@ -231,26 +278,32 @@
 
 		// Initialize Charts when page loads
 		document.addEventListener("DOMContentLoaded", function() {
-
-			// 1. Equipment Condition Bar Chart
+			// 1. Equipment Bar Chart
 			const ctxBar = document.getElementById('equipmentChart')
 					.getContext('2d');
 			new Chart(ctxBar, {
 				type : 'bar',
 				data : {
-					labels : [ 'Preparation', 'Washing', 'Storage', 'VIP',
-							'Guest' ],
+					labels : [
+	<%=chartLabels%>
+		], // e.g., ['VIP', 'PREPARATION', 'GUEST']
 					datasets : [ {
-						label : 'Good Condition',
-						data : [ 12, 19, 3, 5, 10 ],
+						label : 'Good',
+						data : [
+	<%=chartGood%>
+		],
 						backgroundColor : '#36a2eb'
 					}, {
 						label : 'Damaged',
-						data : [ 2, 3, 1, 4, 1 ],
-						backgroundColor : '#ff6384'
+						data : [
+	<%=chartDamaged%>
+		],
+						backgroundColor : '#ffcd56'
 					}, {
 						label : 'Lost',
-						data : [ 3, 8, 1, 6, 2 ],
+						data : [
+	<%=chartLost%>
+		],
 						backgroundColor : '#d30000'
 					} ]
 				},
@@ -258,39 +311,60 @@
 					responsive : true,
 					maintainAspectRatio : false,
 					scales : {
+						x : {
+							stacked : true
+						},
 						y : {
-							beginAtZero : true
+							stacked : true,
+							beginAtZero : true,
+							// REMOVE any 'max: 800' if it exists
+							ticks : {
+								precision : 0,
+								// This ensures the scale increments are useful for small numbers
+								stepSize : 5
+							}
+						}
+					},
+					plugins : {
+						legend : {
+							position : 'bottom'
+						},
+						// Add tooltips to see exact numbers on small bars
+						tooltip : {
+							enabled : true,
+							mode : 'index',
+							intersect : false
 						}
 					}
 				}
 			});
 
-			// 2. Event Status Pie Chart
-			const ctxPie = document.getElementById('eventPieChart').getContext(
-					'2d');
-			new Chart(ctxPie, {
+			// 2. Event Pie Chart
+			const evData = [
+	<%=evChartData%>
+		];
+			new Chart(document.getElementById('eventPieChart'), {
 				type : 'doughnut',
 				data : {
-					labels : [ 'Completed', 'In-Progress', 'Upcoming' ],
+					labels : [ 'Completed', 'In-Progress'],
 					datasets : [ {
-						data : [ 70, 20, 10 ],
-						backgroundColor : [ '#4bc0c0', // Greenish
-						'#ffcd56', // Yellow
-						'#36a2eb' // Blue
-						]
+						data : evData,
+						backgroundColor : [ '#4bc0c0', '#ffcd56']
 					} ]
 				},
 				options : {
 					responsive : true,
-					maintainAspectRatio : false,
-					plugins : {
-						legend : {
-							position : 'bottom'
-						}
-					}
+					maintainAspectRatio : false
 				}
 			});
 		});
+		function showLogoutModal() {
+			document.getElementById("logoutModal").style.display = "flex";
+		}
+
+		function closeLogoutModal() {
+			document.getElementById("logoutModal").style.display = "none";
+		}
 	</script>
 </body>
 </html>

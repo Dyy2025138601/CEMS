@@ -1,17 +1,70 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+	<%@ page import="cems.staffBean"%>
+	<%@ page import="java.sql.*, java.util.*" %>
+<%@ page import="cems.ConnectionManager" %>
+<%
+    staffBean staff = (staffBean) session.getAttribute("staff");
+    
+    // Check if logged in AND if the role is correct
+    if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
+        session.invalidate(); 
+        response.sendRedirect("login.jsp?error=unauthorized");
+        return;
+    }
+%>
+
+<%
+    // 1. Get parameters from the URL
+    String reportType = request.getParameter("reportType");
+    String startDate = request.getParameter("startDate");
+    String endDate = request.getParameter("endDate");
+    
+    ResultSet rs = null;
+    Connection conn = null;
+
+    // 2. Only run if the user clicked "Generate"
+    if (reportType != null && !reportType.isEmpty()) {
+        try {
+            // Use your specific ConnectionManager class
+            conn = ConnectionManager.getConnection();
+
+            String query	 = "";
+            if ("Event".equals(reportType)) {
+                // Adjust column names (event_id, event_name, etc.) to match your DB
+                query = "SELECT * FROM event WHERE eventDate BETWEEN TO_DATE(?, 'YYYY-MM-DD') AND TO_DATE(?, 'YYYY-MM-DD')";
+            } else {
+            	query = "SELECT * FROM equipment WHERE purchase_date BETWEEN TO_DATE(?, 'YYYY-MM-DD') AND TO_DATE(?, 'YYYY-MM-DD')";
+            }
+
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, startDate);
+            ps.setString(2, endDate);
+            rs = ps.executeQuery();
+            
+        } catch (Exception e) {
+            out.println("");
+            e.printStackTrace();
+        }
+    }
+%>
+	
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Report</title>
-<link rel="stylesheet" href="farah1.css">
+<link rel="stylesheet" href="style.css">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet"
 	href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
-
+<%
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+    response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+    response.setDateHeader("Expires", 0); // Proxies
+%>
 </head>
 <body>
 	<div class="layout">
@@ -19,30 +72,37 @@
 			<div class="sidebar-header">
 				<button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
 			</div>
-			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item"> <img
+		<nav class="nav-menu">
+				<a href="EventController?action=dashboard" class="nav-item"> <img
 					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
-				</a> <a href="equipmentList.jsp" class="nav-item"> <img
+					
+				</a> <a href="EquipmentController?action=list" class="nav-item"> <img
 					src="icon/eqp.png" class="nav-icon"> <span class="link-text">Equipment</span>
-				</a> <a href="viewEventList.jsp" class="nav-item"> <img
+					
+				</a> <a href="EventController?action=list" class="nav-item"> <img
 					src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
+					
 				</a> <a href="PackageController?action=list" class="nav-item"> <img
 					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-				</a> <a href="viewCoordinatorList.jsp" class="nav-item"> <img
+					
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item"> <img
 					src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item active"> <img
+					
+				</a> <a href="generateReport.jsp" class="nav-item active"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
 			</nav>
 
+
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -54,7 +114,8 @@
 
 			<div class="user-profile">
 				<div class="user-info">
-					<span class="user-name">Hawa Aqiera</span> <span class="user-role">Manager</span>
+					<span class="user-name"><%=staff.getStaffName()%></span> <span
+						class="user-role"><%=staff.getStaffRole()%></span>
 				</div>
 
 				<a href="accountManager.jsp" class="profile-link"> <span
@@ -76,7 +137,7 @@
 						<h3 class="type-title">Select Report Type</h3>
 						<label><input type="radio" name="report" value="Event">
 							Event Report</label> <label><input type="radio" name="report"
-							value="Report"> Equipment Report</label>
+							value="Equipment"> Equipment Report</label>
 					</div>
 
 					<div class="form-section">
@@ -134,45 +195,37 @@
 					</div>
 				</div>
 			</div>
+				<div id="logoutModal" class="modal-overlay" style="display: none;">
+					<div class="modal-content">
+						<div class="modal-icon-container"
+							style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+							<i class="fa-solid fa-right-from-bracket"></i>
+						</div>
+						<h3>Confirmation</h3>
+						<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+							you sure to log out?</p>
+						<div class="modal-buttons"
+							style="display: flex; justify-content: center; gap: 15px;">
+							<button class="btn-cancel" onclick="closeLogoutModal()"
+								style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+								Cancel</button>
+							<a href="staffServlet?action=logout" style="text-decoration: none;">
+								<button class="btn-logout"
+									style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+									Log Out</button>
+							</a>
+						</div>
+					</div>
+				</div>
 
 		</main>
 	</div>
-
-	<!-- Success Modal -->
-	<div class="modal-overlay" id="successModal">
-		<div class="modal-box">
-			<button class="modal-close" onclick="closeModal()">×</button>
-
-			<h2>
-				Report Successfully<br>Generated
-			</h2>
-
-			<div class="success-icon">
-				<i class="fas fa-check"></i>
-			</div>
-		</div>
-	</div>
-
 	<script>
-		function showModal() {
-			document.getElementById("successModal").style.display = "flex";
-		}
-
-		function closeModal() {
-			// hide modal
-			document.getElementById("successModal").style.display = "none";
-
-			// redirect to Event List page
-			window.location.href = "viewReportList.jsp";
-		}
-
-		// Close modal when clicking outside
-		document.getElementById("successModal").addEventListener("click",
-				function(e) {
-					if (e.target === this) {
-						closeModal();
-					}
-				});
+	
+	function toggleSidebar() {
+		document.getElementById("sidebar").classList.toggle("collapsed");
+		document.querySelector(".layout").classList.toggle("collapsed");
+	}
 	</script>
 
 	<script>
@@ -352,35 +405,39 @@
 
 	<script>
 		function validateAndGenerate() {
-			// 1. Get the Date values
-			var startDate = document.getElementById("fromDate").value;
-			var endDate = document.getElementById("toDate").value;
+		    var startDate = document.getElementById("fromDate").value;
+		    var endDate = document.getElementById("toDate").value;
+		    
+		    // Use querySelector to safely get the checked radio value
+		    var reportRadio = document.querySelector('input[name="report"]:checked');
+		    var reportType = reportRadio ? reportRadio.value : null;
 
-			// 2. Get the Radio button value
-			var reportType = null;
-			var radios = document.getElementsByName("report");
-			for (var i = 0; i < radios.length; i++) {
-				if (radios[i].checked) {
-					reportType = radios[i].value;
-					break;
-				}
-			}
+		    if (!startDate || !endDate || !reportType) {
+		        alert("Please complete the form first.");
+		        return;
+		    }
 
-			// 3. Validation Logic
-			if (startDate === "" || endDate === "") {
-				alert("Please select a date range first.");
-				return; // Stop here
-			}
+		    var baseUrl = "";
+		    if (reportType === "Event") {
+		        baseUrl = "EventController";
+		    } else if (reportType === "Report" || reportType === "Equipment") {
+		        // Match the 'value' attribute in your radio buttons
+		        baseUrl = "EquipmentController";
+		    }
+		    
+		    // Construct the full URL with the action and dates
+		    var finalUrl = baseUrl + "?action=generateReport&startDate=" + startDate + "&endDate=" + endDate;
+		    
+		    console.log("Redirecting to: " + finalUrl); 
+		    window.location.href = finalUrl;
+		}
 
-			if (reportType === null) {
-				alert("Please select a Report Type (Event or Equipment).");
-				return; // Stop here
-			}
+		function showLogoutModal() {
+		    document.getElementById("logoutModal").style.display = "flex";
+		}
 
-			// 4. If everything is good:
-			// Ideally, here you would send data to the server (AJAX/Fetch).
-			// For now, we just assume success and show the modal.
-			showModal();
+		function closeLogoutModal() {
+		    document.getElementById("logoutModal").style.display = "none";
 		}
 	</script>
 </body>

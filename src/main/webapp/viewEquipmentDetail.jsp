@@ -3,6 +3,7 @@
 <%@ page import="cems.Equipment"%>
 <%@ page import="cems.ServiceEquipment"%>
 <%@ page import="cems.SupportEquipment"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%
 Equipment eqp = (Equipment) request.getAttribute("equipment");
 String category = "";
@@ -30,8 +31,13 @@ if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
 <meta charset="UTF-8">
 <title>Equipment Details</title>
 <link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="farah1.css">
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+response.setDateHeader("Expires", 0); // Proxies
+%>
 </head>
 <body>
 	<div class="layout">
@@ -41,30 +47,36 @@ if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
 			</div>
 
 			<nav class="nav-menu">
-				<a href="dashboardManager.jsp" class="nav-item"> <img
+				<a href="EventController?action=dashboard" class="nav-item"> <img
 					src="icon/dashboard.png" alt="Dashboard" class="nav-icon"> <span
 					class="link-text">Dashboard</span>
+
 				</a> <a href="EquipmentController?action=list" class="nav-item active">
 					<img src="icon/eqp.png" class="nav-icon"> <span
 					class="link-text">Equipment</span>
-				</a> <a href="viewEventList.jsp" class="nav-item"> <img
+
+				</a> <a href="EventController?action=list" class="nav-item"> <img
 					src="icon/event.png" class="nav-icon"> <span
 					class="link-text">Event</span>
+
 				</a> <a href="PackageController?action=list" class="nav-item"> <img
 					src="icon/package.png" class="nav-icon"> <span
 					class="link-text">Package</span>
-				</a> <a href="viewCoordinatorList.jsp" class="nav-item"> <img
-					src="icon/coordinator.png" class="nav-icon"> <span
+
+				</a> <a href="staffServlet?action=listCoordinators" class="nav-item">
+					<img src="icon/coordinator.png" class="nav-icon"> <span
 					class="link-text">Coordinator</span>
-				</a> <a href="viewReportList.jsp" class="nav-item"> <img
+				</a> <a href="generateReport.jsp" class="nav-item"> <img
 					src="icon/report.png" class="nav-icon"> <span
 					class="link-text">Report</span>
 				</a>
 			</nav>
 
+
 			<div class="logout-section">
-				<a href="logout.jsp" class="nav-icon-logout"> <img
-					src="icon/logout.png"> <span class="link-text">Log Out</span>
+				<a href="javascript:void(0)" onclick="showLogoutModal()"
+					class="nav-icon-logout"> <img src="icon/logout.png"> <span
+					class="link-text">Log Out</span>
 				</a>
 			</div>
 		</div>
@@ -106,72 +118,119 @@ if (staff == null || !"MANAGER".equalsIgnoreCase(staff.getStaffRole())) {
 									ID:
 									<%=eqp.getEqpID()%></p>
 								<%-- <div class="status-badge" id="detailType"></div>--%>
-								<strong><span>Total: </span><%=eqp.getEqpTotQty()%></strong>
+								<span class="card-label">Total: </span><strong
+									class="card-total"><%=eqp.getEqpQty()%></strong>
 							</div>
 						</div>
 					</div>
 					<div class="qty-summary-grid">
-						<div class="qty-card">
-							<div class="qty-info">
-								<span>Available</span> <i
-									class="fas fa-boxes-stacked icon-available"></i>
+						<div class="qty-card card-available">
+							<div class="card-content">
+								<span class="card-label">Available</span> <strong
+									class="card-number"><%=eqp.getTotQtyAvailable()%></strong>
 							</div>
-							<strong class="qty-number text-success"><%=eqp.getTotQtyAvailable()%></strong>
-						</div>
-						<div class="qty-card">
-							<div class="qty-info">
-								<span>In Use</span> <i class="fas fa-hand-holding icon-inuse"></i>
-							</div>
-							<strong class="qty-number"><%=eqp.getTotQtyInUse()%></strong>
+							<i class="bg-icon fa fa-check-circle"></i>
 						</div>
 
-						<div class="qty-card">
-							<div class="qty-info">
-								<span>Damaged</span> <i class="fas fa-house-damage icon-damaged"></i>
+						<div class="qty-card card-use">
+							<div class="card-content">
+								<span class="card-label">In Use</span> <strong
+									class="card-number"><%=eqp.getTotQtyInUse()%></strong>
 							</div>
-							<strong class="qty-number text-damaged"><%=eqp.getEqpTotDamage()%></strong>
+							<i class="bg-icon fa fa-hand-holding"></i>
 						</div>
 
-						<div class="qty-card">
-							<div class="qty-info">
-								<span>Lost</span> <i class="fas fa-search-minus icon-lost"></i>
+						<div class="qty-card card-damaged">
+							<div class="card-content">
+								<span class="card-label">Damaged</span> <strong
+									class="card-number"><%=eqp.getEqpTotDamage()%></strong>
 							</div>
-							<strong class="qty-number text-lost"><%=eqp.getEqpTotLost()%></strong>
+							<i class="bg-icon fa fa-heart-broken"></i>
 						</div>
-					</div>
 
-					<div class="record-section">
-						<h3 class="section-subtitle">Damage and Lost Records</h3>
-						<table class="table">
-							<thead>
-								<tr>
-									<th>Coordinator</th>
-									<th>Event Name</th>
-									<th>Date &amp; Time</th>
-									<th>Damaged</th>
-									<th>Lost</th>
-								</tr>
-							</thead>
-							<!--<tbody>
-                            <tr>
-                                <td>Amirul Hakim</td>
-                                <td>Wedding Dinner A</td>
-                                <td>24-05-2025 | 08:00 PM</td>
-                                <td><strong style="color: #ff8c00;">3</strong></td>
-                                <td><strong style="color: #ff4d4d;">1</strong></td>
-                            </tr>
-                        </tbody>  -->
-						</table>
+						<div class="qty-card card-lost">
+							<div class="card-content">
+								<span class="card-label">Lost</span> <strong class="card-number"><%=eqp.getEqpTotLost()%></strong>
+							</div>
+							<i class="bg-icon fa fa-search"></i>
+						</div>
 					</div>
 				</div>
+
+				<div class="record-section">
+					<h3 class="section-subtitle">Damage and Lost Records</h3>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Coordinator Name</th>
+								<th>Event Name</th>
+								<th>Date</th>
+								<th>Damaged</th>
+								<th>Lost</th>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach var="record" items="${usageHistory}">
+								<tr>
+									<td><strong>${record.staffName}</strong></td>
+									<td>${record.eventName}</td>
+									<td>${record.eventDate}</td>
+									<td><strong style="color: orange;">${record.qtyDamage}</strong>
+									</td>
+									<td><strong style="color: red;">${record.qtyLost}</strong>
+									</td>
+								</tr>
+							</c:forEach>
+
+							<c:if test="${empty usageHistory}">
+								<tr>
+									<td colspan="5"
+										style="text-align: center; padding: 30px; color: #888;">
+										<i class="fas fa-info-circle"></i> No damage or lost records
+										found for this equipment.
+									</td>
+								</tr>
+							</c:if>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</main>
 	</div>
-
+	<div id="logoutModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content">
+			<div class="modal-icon-container"
+				style="font-size: 50px; color: #f36f21; margin-bottom: 20px;">
+				<i class="fa-solid fa-right-from-bracket"></i>
+			</div>
+			<h3>Confirmation</h3>
+			<p class="modal-text" style="color: white; margin-bottom: 30px;">Are
+				you sure to log out?</p>
+			<div class="modal-buttons"
+				style="display: flex; justify-content: center; gap: 15px;">
+				<button class="btn-cancel" onclick="closeLogoutModal()"
+					style="padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+					Cancel</button>
+				<a href="staffServlet?action=logout" style="text-decoration: none;">
+					<button class="btn-logout"
+						style="background: linear-gradient(to right, #ff8c00, #ff4500); color: white; padding: 10px 30px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer;">
+						Log Out</button>
+				</a>
+			</div>
+		</div>
+	</div>
 	<script>
 		// Sidebar Toggle Logic
 		function toggleSidebar() {
 			document.getElementById("sidebar").classList.toggle("collapsed");
 			document.querySelector(".layout").classList.toggle("collapsed");
+		}
+		function showLogoutModal() {
+			document.getElementById("logoutModal").style.display = "flex";
+		}
+
+		function closeLogoutModal() {
+			document.getElementById("logoutModal").style.display = "none";
 		}
 	</script>
 
