@@ -42,7 +42,7 @@ public class EventDAO {
 
 		String query = "SELECT e.*, p.packName FROM event e " + 
 		"LEFT JOIN packageCatering p ON e.packID = p.packID " + 
-		"WHERE e.is_deleted = 0 " + 
+		"WHERE e.is_deleted = false " + 
 		"ORDER BY e.eventDate ASC, e.eventTime ASC";
 
 		try (Connection conn = ConnectionManager.getConnection();
